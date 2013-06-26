@@ -1,16 +1,16 @@
 exfat-nofuse
 ============
 
-Linux non-fuse read/write kernel driver for the exFAT file system.
+Linux non-fuse read/write kernel driver for the exFAT file system.<br />
+Originally ported from android kernel v3.0.
 
-Tested and works against kernel versions 3.8 and 3.9.
 
-Kudos to github user ksv1986 for the 3.9 patch!
+Tested and works against linux kernel versions 3.8 and 3.9.<br />
+Kudos to github user ksv1986 for the 3.9 compatibility patch!
 
 
 Installation:
-> make
-
+> make<br />
 > make install
 
 To load the driver manually, run this as root:
