@@ -451,7 +451,6 @@ static struct dentry *exfat_lookup(struct inode *dir, struct dentry *dentry,
 	int err;
 	UINT64 ret;
 	mode_t i_mode;
-	//umode_t i_mode;
 
 	mutex_lock(&EXFAT_SB(sb)->s_lock);
 	PRINTK("exfat_lookup entered\n");
@@ -1560,6 +1559,17 @@ static void exfat_evict_inode(struct inode *inode)
 }
 #endif
 
+static void exfat_free_super(struct exfat_sb_info *sbi)
+{
+	if (sbi->nls_disk)
+		unload_nls(sbi->nls_disk);
+	if (sbi->nls_io)
+		unload_nls(sbi->nls_io);
+	if (sbi->options.iocharset != exfat_default_iocharset)
+		kfree(sbi->options.iocharset);
+	mutex_destroy(&sbi->s_lock);
+	kfree(sbi);
+}
 
 static void exfat_put_super(struct super_block *sb)
 {
@@ -1570,22 +1580,8 @@ static void exfat_put_super(struct super_block *sb)
 
 	FsUmountVol(sb);
 
-	if (sbi->nls_disk) {
-		unload_nls(sbi->nls_disk);
-		sbi->nls_disk = NULL;
-		sbi->options.codepage = exfat_default_codepage;
-	}
-	if (sbi->nls_io) {
-		unload_nls(sbi->nls_io);
-		sbi->nls_io = NULL;
-	}
-	if (sbi->options.iocharset != exfat_default_iocharset) {
-		kfree(sbi->options.iocharset);
-		sbi->options.iocharset = exfat_default_iocharset;
-	}
-
 	sb->s_fs_info = NULL;
-	kfree(sbi);
+	exfat_free_super(sbi);
 }
 
 static void exfat_write_super(struct super_block *sb)
@@ -1920,6 +1916,7 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	if (!sbi)
 		return -ENOMEM;
 	sb->s_fs_info = sbi;
+	mutex_init(&sbi->s_lock);
 
 	sb->s_flags |= MS_NODIRATIME;
 	sb->s_magic = EXFAT_SUPER_MAGIC;
@@ -2005,14 +2002,8 @@ out_fail2:
 out_fail:
 	if (root_inode)
 		iput(root_inode);
-	if (sbi->nls_io)
-		unload_nls(sbi->nls_io);
-	if (sbi->nls_disk)
-		unload_nls(sbi->nls_disk);
-	if (sbi->options.iocharset != exfat_default_iocharset)
-		kfree(sbi->options.iocharset);
 	sb->s_fs_info = NULL;
-	kfree(sbi);
+	exfat_free_super(sbi);
 	return error;
 }
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37)
