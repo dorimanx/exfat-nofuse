@@ -24,6 +24,9 @@
 #include <linux/namei.h>
 #include <asm/current.h>
 #include <asm/unaligned.h>
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,9)
+#include <linux/aio.h>
+#endif
 
 #include "exfat_version.h"
 #include "exfat_config.h"
@@ -1265,8 +1268,7 @@ static int exfat_write_end(struct file *file, struct address_space *mapping,
 	return err;
 }
 
-static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb,
-							   const struct iovec *iov,
+static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
 							   loff_t offset, unsigned long nr_segs)
 {
 	struct inode *inode = iocb->ki_filp->f_mapping->host;
