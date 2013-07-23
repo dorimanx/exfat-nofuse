@@ -2110,3 +2110,7 @@ module_exit(exit_exfat_fs);
 
 MODULE_LICENSE("Samsung Proprietary");
 MODULE_DESCRIPTION("exFAT Filesystem Driver");
+MODULE_ALIAS("exfat");
+#ifdef MODULE_ALIAS_FS
+MODULE_ALIAS_FS("exfat");
+#endif
