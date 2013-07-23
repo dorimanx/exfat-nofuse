@@ -2108,5 +2108,5 @@ static void __exit exit_exfat_fs(void)
 module_init(init_exfat_fs);
 module_exit(exit_exfat_fs);
 
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("Samsung Proprietary");
 MODULE_DESCRIPTION("exFAT Filesystem Driver");
