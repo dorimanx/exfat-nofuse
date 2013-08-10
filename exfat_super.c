@@ -1545,7 +1545,11 @@ static void exfat_evict_inode(struct inode *inode)
 		//mark_inode_dirty(inode);
 	}
 	invalidate_inode_buffers(inode);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
 	clear_inode(inode);
+#else
+	end_writeback(inode);
+#endif
 	exfat_detach(inode);
 /*
 	struct exfat_sb_info *sbi = EXFAT_SB(inode->i_sb);
