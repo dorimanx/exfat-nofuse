@@ -565,7 +565,7 @@ module_init(init_exfat_core);
 module_exit(exit_exfat_core);
 
 
-MODULE_LICENSE("Samsung Proprietary");
+MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("exFAT Filesystem Core");
 
 /*======================================================================*/
