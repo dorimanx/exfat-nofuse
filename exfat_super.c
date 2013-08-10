@@ -24,7 +24,7 @@
 #include <linux/namei.h>
 #include <asm/current.h>
 #include <asm/unaligned.h>
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,9)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #include <linux/aio.h>
 #endif
 
@@ -1995,7 +1995,11 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	}
 */
 	insert_inode_hash(root_inode);
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)
 	sb->s_root = d_make_root(root_inode);
+	#else
+	sb->s_root = d_alloc_root(root_inode);
+	#endif
 	if (!sb->s_root) {
 		printk(KERN_ERR "EXFAT: Getting the root inode failed\n");
 		goto out_fail2;
