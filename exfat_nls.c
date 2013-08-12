@@ -66,7 +66,7 @@ UINT16 nls_upper(struct super_block *sb, UINT16 a)
 
 	if (EXFAT_SB(sb)->options.casesensitive)
 		return(a);
-	if ((p_fs->vol_utbl)[get_col_index(a)] != NULL)
+	if (p_fs->vol_utbl != NULL && (p_fs->vol_utbl)[get_col_index(a)] != NULL)
 		return (p_fs->vol_utbl)[get_col_index(a)][get_row_index(a)];
 	else
 		return a;
