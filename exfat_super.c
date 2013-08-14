@@ -2095,30 +2095,44 @@ static struct file_system_type exfat_fs_type = {
 	.fs_flags    = FS_REQUIRES_DEV,
 };
 
-static int __init init_exfat_fs(void)
+static int __init init_exfat(void)
 {
 	int err;
 
-	printk(KERN_INFO "exFAT: FS Version %s\n", EXFAT_VERSION);
+	err = FsInit();
+	if (err) {
+		if (err == FFS_MEMORYERR)
+			return -ENOMEM;
+		else
+			return -EIO;
+	}
+
+	printk(KERN_INFO "exFAT: Version %s\n", EXFAT_VERSION);
 
 	err = exfat_init_inodecache();
-	if (err) return err;
+	if (err) goto out;
 
-	return register_filesystem(&exfat_fs_type);
+	err = register_filesystem(&exfat_fs_type);
+	if (err) goto out;
+
+	return 0;
+out:
+	FsShutdown();
+	return err;
 }
 
-static void __exit exit_exfat_fs(void)
+static void __exit exit_exfat(void)
 {
 	exfat_destroy_inodecache();
 	unregister_filesystem(&exfat_fs_type);
+	FsShutdown();
 }
 
-module_init(init_exfat_fs);
-module_exit(exit_exfat_fs);
+module_init(init_exfat);
+module_exit(exit_exfat);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("exFAT Filesystem Driver");
-MODULE_ALIAS("exfat");
 #ifdef MODULE_ALIAS_FS
 MODULE_ALIAS_FS("exfat");
 #endif
