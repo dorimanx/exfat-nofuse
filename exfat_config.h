@@ -38,11 +38,6 @@ extern "C" {
 #define FFS_CONFIG_OS           OS_LINUX
 
 /*----------------------------------------------------------------------*/
-/* Set this definition to 1 if the target CPU is little-endian          */
-/*----------------------------------------------------------------------*/
-#define FFS_CONFIG_LITTLE_ENDIAN        1
-
-/*----------------------------------------------------------------------*/
 /* Set this definition to 1 to support APIs with pointer parameters     */
 /*     to 32-bit variables (e.g. read, write, seek, get_filesize)       */
 /*----------------------------------------------------------------------*/
