@@ -3898,8 +3898,7 @@ INT32 exfat_find_dir_entry(struct super_block *sb, CHAIN_T *p_dir, UNI_NAME_T *p
 				} else if (entry_type == TYPE_STREAM) {
 					if (is_feasible_entry) {
 						strm_ep = (STRM_DENTRY_T *) ep;
-						if ((p_uniname->name_hash == GET16_A(strm_ep->name_hash)) &&
-							(p_uniname->name_len == strm_ep->name_len)) {
+						if (p_uniname->name_len == strm_ep->name_len) {
 							order = 1;
 						} else {
 							is_feasible_entry = FALSE;
