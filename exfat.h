@@ -154,7 +154,7 @@ extern "C" {
             (p_dst)[7]=(UINT8)(((UINT64)(src)) >> 56);    \
         } while (0)
 
-#if (FFS_CONFIG_LITTLE_ENDIAN == 1)
+#ifdef __LITTLE_ENDIAN
 #define GET16_A(p_src)          (*((UINT16 *)(p_src)))
 #define GET32_A(p_src)          (*((UINT32 *)(p_src)))
 #define GET64_A(p_src)          (*((UINT64 *)(p_src)))
