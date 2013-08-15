@@ -1955,12 +1955,14 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	 * if (FAT_FIRST_ENT(sb, media) != first)
 	 */
 
-	error = -EINVAL;
-	sprintf(buf, "cp%d", sbi->options.codepage);
-	sbi->nls_disk = load_nls(buf);
-	if (!sbi->nls_disk) {
-		printk(KERN_ERR "EXFAT: Codepage %s not found\n", buf);
-		goto out_fail2;
+	if (sbi->fs_info.vol_type != EXFAT) {
+		error = -EINVAL;
+		sprintf(buf, "cp%d", sbi->options.codepage);
+		sbi->nls_disk = load_nls(buf);
+		if (!sbi->nls_disk) {
+			printk(KERN_ERR "EXFAT: Codepage %s not found\n", buf);
+			goto out_fail2;
+		}
 	}
 
 	sbi->nls_io = load_nls(sbi->options.iocharset);
