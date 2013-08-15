@@ -178,7 +178,7 @@ INT32 ffsMountVol(struct super_block *sb, INT32 drv)
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 	BD_INFO_T *p_bd = &(EXFAT_SB(sb)->bd_info);
 
-	printk("[EXFAT] ===== ffsMountVol =====\n");
+	PRINTK("[EXFAT] ===== ffsMountVol =====\n");
 
 	p_fs->drv = drv;
 	p_fs->dev_ejected = FALSE;
