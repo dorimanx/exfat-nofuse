@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 /************************************************************************/
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
@@ -287,23 +305,23 @@ INT32 FsWriteFile(struct inode *inode, FILE_ID_T *fid, void *buffer, UINT64 coun
 } /* end of FsWriteFile */
 
 /* FsTruncateFile : resize the file length */
-INT32 FsTruncateFile(struct inode *inode, UINT64 new_size)
+INT32 FsTruncateFile(struct inode *inode, UINT64 old_size, UINT64 new_size)
 {
 	INT32 err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
-	PRINTK("FsTruncateFile entered (inode %p size %llu\n", inode, new_size);
-
 	/* acquire the lock for file system critical section */
 	sm_P(&(fs_struct[p_fs->drv].v_sem));
 
-	err = ffsTruncateFile(inode, new_size);
+	PRINTK("FsTruncateFile entered (inode %p size %llu)\n", inode, new_size);
+
+	err = ffsTruncateFile(inode, old_size, new_size);
+
+	PRINTK("FsTruncateFile exitted (%d)\n", err);
 
 	/* release the lock for file system critical section */
 	sm_V(&(fs_struct[p_fs->drv].v_sem));
-
-	PRINTK("FsTruncateFile exitted (%d)\n", err);
 
 	return(err);
 } /* end of FsTruncateFile */

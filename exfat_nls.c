@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 /************************************************************************/
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
@@ -269,25 +287,22 @@ void nls_uniname_to_cstring(struct super_block *sb, UINT8 *p_cstring, UNI_NAME_T
 
 void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8 *p_cstring, INT32 *p_lossy)
 {
-	INT32 i, j, lossy = 0;
+	INT32 i, j, lossy = FALSE;
 	UINT8 *end_of_name;
 	UINT8 upname[MAX_NAME_LENGTH * 2];
 	UINT16 *uniname = p_uniname->name;
 	struct nls_table *nls = EXFAT_SB(sb)->nls_io;
 
-	/* strip all leading spaces */
-	while (*p_cstring == ' ') p_cstring++;
 
 	/* strip all trailing spaces */
-	end_of_name = p_cstring + STRLEN(p_cstring);
+	end_of_name = p_cstring + STRLEN((INT8 *) p_cstring);
 
 	while (*(--end_of_name) == ' ') {
 		if (end_of_name < p_cstring) break;
 	}
 	*(++end_of_name) = '\0';
 
-	if (STRCMP(p_cstring, ".") && STRCMP(p_cstring, "..")) {
-		//if (*p_cstring == '.') lossy = TRUE;
+	if (STRCMP((INT8 *) p_cstring, ".") && STRCMP((INT8 *) p_cstring, "..")) {
 
 		/* strip all trailing periods */
 		while (*(--end_of_name) == '.') {
@@ -297,7 +312,7 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 	}
 
 	if (*p_cstring == '\0')
-		SET_LOSSY(lossy, NLS_LOSSY_TOOSHORT);
+		lossy = TRUE;
 
 	i = j = 0;
 	while (j < (MAX_NAME_LENGTH-1)) {
@@ -306,7 +321,7 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 		i += convert_ch_to_uni(nls, uniname, (UINT8 *)(p_cstring+i), &lossy);
 
 		if ((*uniname < 0x0020) || WSTRCHR(bad_uni_chars, *uniname))
-			SET_LOSSY(lossy, NLS_LOSSY_ERROR);
+			lossy = TRUE;
 
 		SET16_A(upname + j * 2, nls_upper(sb, *uniname));
 
@@ -315,13 +330,14 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 	}
 
 	if (*(p_cstring+i) != '\0')
-		SET_LOSSY(lossy, NLS_LOSSY_TOOLONG);
+		lossy = TRUE;
 	*uniname = (UINT16) '\0';
 
 	p_uniname->name_len = j;
 	p_uniname->name_hash = calc_checksum_2byte((void *) upname, j<<1, 0, CS_DEFAULT);
 
-	if (p_lossy != NULL) *p_lossy = lossy;
+	if (p_lossy != NULL)
+		*p_lossy = lossy;
 } /* end of nls_cstring_to_uniname */
 
 /*======================================================================*/
@@ -343,7 +359,7 @@ static INT32 convert_ch_to_uni(struct nls_table *nls, UINT16 *uni, UINT8 *ch, IN
 		/* conversion failed */
 		printk("%s: fail to use nls \n", __func__);
 		if (lossy != NULL)
-			SET_LOSSY(*lossy, NLS_LOSSY_CHAR_TO_UNI_ERROR);
+			*lossy = TRUE;
 		*uni = (UINT16) '_';
 		if (!strcmp(nls->charset, "utf8")) return(1);
 		else return(2);

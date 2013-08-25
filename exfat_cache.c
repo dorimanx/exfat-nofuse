@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 /************************************************************************/
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
@@ -29,35 +47,11 @@
 
 extern FS_STRUCT_T      fs_struct[];
 
-/* All buffer structures are protected w/ p_fs->v_sem */
-#if 0
-extern struct semaphore f_sem;
-extern struct semaphore b_sem;
-#else
 #define sm_P(s)
 #define sm_V(s)
-#endif
-
-#if 0
-/*----------------------------------------------------------------------*/
-/*  Local Variable Definitions                                          */
-/*----------------------------------------------------------------------*/
-
-extern BUF_CACHE_T      FAT_cache_array[];
-extern BUF_CACHE_T      FAT_cache_lru_list;
-extern BUF_CACHE_T      FAT_cache_hash_list[];
-
-extern BUF_CACHE_T      buf_cache_array[];
-extern BUF_CACHE_T      buf_cache_lru_list;
-extern BUF_CACHE_T      buf_cache_hash_list[];
-#endif
-
-/*----------------------------------------------------------------------*/
-/*  Local Function Declarations                                         */
-/*----------------------------------------------------------------------*/
 
 static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content);
-static void   __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content);
+static INT32 __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content);
 
 static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, UINT32 sec);
 static BUF_CACHE_T *FAT_cache_get(struct super_block *sb, UINT32 sec);
@@ -82,7 +76,7 @@ static void move_to_lru(BUF_CACHE_T *bp, BUF_CACHE_T *list);
 
 INT32 buf_init(struct super_block *sb)
 {
-  FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
+	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
 	INT32 i;
 
@@ -160,13 +154,17 @@ INT32 FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 	return(ret);
 } /* end of FAT_read */
 
-void FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
+INT32 FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 {
+	INT32 ret;
+
 	sm_P(&f_sem);
 
-	__FAT_write(sb, loc, content);
+	ret = __FAT_write(sb, loc, content);
 
 	sm_V(&f_sem);
+
+	return(ret);
 } /* end of FAT_write */
 
 static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
@@ -183,22 +181,19 @@ static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 
 		if (off == (p_bd->sector_size-1)) {
 			fat_sector = FAT_getblk(sb, sec);
-			if
-			(!fat_sector)
+			if (!fat_sector)
 				return -1;
 
 			_content  = (UINT32) fat_sector[off];
 
 			fat_sector = FAT_getblk(sb, ++sec);
-			if
-			(!fat_sector)
+			if (!fat_sector)
 				return -1;
 
 			_content |= (UINT32) fat_sector[0] << 8;
 		} else {
 			fat_sector = FAT_getblk(sb, sec);
-			if
-			(!fat_sector)
+			if (!fat_sector)
 				return -1;
 
 			fat_entry = &(fat_sector[off]);
@@ -210,11 +205,9 @@ static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 		_content &= 0x00000FFF;
 
 		if (_content >= CLUSTER_16(0x0FF8)) {
-			// return(CLUSTER_32(~0)); // return 0xFFFFFFFF to simplify code
 			*content = CLUSTER_32(~0);
 			return 0;
 		} else {
-			//return(CLUSTER_32(_content));
 			*content = CLUSTER_32(_content);
 			return 0;
 		}
@@ -223,8 +216,7 @@ static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 		off = (loc << 1) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
-		if
-		(!fat_sector)
+		if (!fat_sector)
 			return -1;
 
 		fat_entry = &(fat_sector[off]);
@@ -234,11 +226,9 @@ static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 		_content &= 0x0000FFFF;
 
 		if (_content >= CLUSTER_16(0xFFF8)) {
-			//return(CLUSTER_32(~0)); // return 0xFFFFFFFF to simplify code
 			*content = CLUSTER_32(~0);
 			return 0;
 		} else {
-			//return(CLUSTER_32(_content));
 			*content = CLUSTER_32(_content);
 			return 0;
 		}
@@ -247,8 +237,7 @@ static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 		off = (loc << 2) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
-		if
-		(!fat_sector)
+		if (!fat_sector)
 			return -1;
 
 		fat_entry = &(fat_sector[off]);
@@ -258,44 +247,37 @@ static INT32 __FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content)
 		_content &= 0x0FFFFFFF;
 
 		if (_content >= CLUSTER_32(0x0FFFFFF8)) {
-			//return(CLUSTER_32(~0)); // return 0xFFFFFFFF to simplify code
 			*content = CLUSTER_32(~0);
 			return 0;
 		} else {
-			//return(CLUSTER_32(_content));
 			*content = CLUSTER_32(_content);
 			return 0;
 		}
 	} else {
-		/* p_fs->vol_type == EXFAT */
 		sec = p_fs->FAT1_start_sector + (loc >> (p_bd->sector_size_bits-2));
 		off = (loc << 2) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
-		if
-		(!fat_sector)
+		if (!fat_sector)
 			return -1;
 
 		fat_entry = &(fat_sector[off]);
 		_content = GET32_A(fat_entry);
 
 		if (_content >= CLUSTER_32(0xFFFFFFF8)) {
-			//return(CLUSTER_32(~0)); // return 0xFFFFFFFF to simplify code
 			*content = CLUSTER_32(~0);
 			return 0;
 		} else {
-			//return(CLUSTER_32(_content));
 			*content = CLUSTER_32(_content);
 			return 0;
 		}
 	}
 
-	//return(CLUSTER_32(~0));
 	*content = CLUSTER_32(~0);
 	return 0;
 } /* end of __FAT_read */
 
-static void __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
+static INT32 __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 {
 	INT32 off;
 	UINT32 sec;
@@ -311,6 +293,8 @@ static void __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 		off = (loc + (loc >> 1)) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
+		if (!fat_sector)
+			return -1;
 
 		if (loc & 1) { /* odd */
 
@@ -321,6 +305,9 @@ static void __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 				FAT_modify(sb, sec);
 
 				fat_sector = FAT_getblk(sb, ++sec);
+				if (!fat_sector)
+					return -1;
+
 				fat_sector[0] = (UINT8)(content >> 8);
 			} else {
 				fat_entry = &(fat_sector[off]);
@@ -354,6 +341,9 @@ static void __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 		off = (loc << 1) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
+		if (!fat_sector)
+			return -1;
+
 		fat_entry = &(fat_sector[off]);
 
 		SET16_A(fat_entry, content);
@@ -367,6 +357,9 @@ static void __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 		off = (loc << 2) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
+		if (!fat_sector)
+			return -1;
+
 		fat_entry = &(fat_sector[off]);
 
 		content |= GET32_A(fat_entry) & 0xF0000000;
@@ -380,12 +373,16 @@ static void __FAT_write(struct super_block *sb, UINT32 loc, UINT32 content)
 		off = (loc << 2) & p_bd->sector_size_mask;
 
 		fat_sector = FAT_getblk(sb, sec);
+		if (!fat_sector)
+			return -1;
+
 		fat_entry = &(fat_sector[off]);
 
 		SET32_A(fat_entry, content);
 	}
 
 	FAT_modify(sb, sec);
+	return 0;
 } /* end of __FAT_write */
 
 UINT8 *FAT_getblk(struct super_block *sb, UINT32 sec)
@@ -409,8 +406,16 @@ UINT8 *FAT_getblk(struct super_block *sb, UINT32 sec)
 
 	FAT_cache_insert_hash(sb, bp);
 
-	if (sector_read(sb, sec, &(bp->buf_bh), 1) != FFS_SUCCESS)
+	if (sector_read(sb, sec, &(bp->buf_bh), 1) != FFS_SUCCESS) {
+		FAT_cache_remove_hash(bp);
+		bp->drv = -1;
+		bp->sec = ~0;
+		bp->flag = 0;
+		bp->buf_bh = NULL;
+
+		move_to_lru(bp, &p_fs->FAT_cache_lru_list);
 		return NULL;
+	}
 
 	return(bp->buf_bh->b_data);
 } /* end of FAT_getblk */
@@ -421,7 +426,6 @@ void FAT_modify(struct super_block *sb, UINT32 sec)
 
 	bp = FAT_cache_find(sb, sec);
 	if (bp != NULL) {
-//        bp->flag |= DIRTYBIT;
 		sector_write(sb, sec, bp->buf_bh, 0);
 	}
 } /* end of FAT_modify */
@@ -440,8 +444,10 @@ void FAT_release_all(struct super_block *sb)
 			bp->sec = ~0;
 			bp->flag = 0;
 
-			__brelse(bp->buf_bh);
-			bp->buf_bh = NULL;
+			if(bp->buf_bh) {
+				__brelse(bp->buf_bh);
+				bp->buf_bh = NULL;
+			}
 		}
 		bp = bp->next;
 	}
@@ -479,6 +485,10 @@ static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, UINT32 sec)
 	hp = &(p_fs->FAT_cache_hash_list[off]);
 	for (bp = hp->hash_next; bp != hp; bp = bp->hash_next) {
 		if ((bp->drv == p_fs->drv) && (bp->sec == sec)) {
+
+			WARN(!bp->buf_bh, "[EXFAT] FAT_cache has no bh. "
+					  "It will make system panic.\n");
+
 			touch_buffer(bp->buf_bh);
 			return(bp);
 		}
@@ -493,8 +503,6 @@ static BUF_CACHE_T *FAT_cache_get(struct super_block *sb, UINT32 sec)
 
 	bp = p_fs->FAT_cache_lru_list.prev;
 
-//    if (bp->flag & DIRTYBIT)
-//       sync_dirty_buffer(bp->buf_bh);
 
 	move_to_mru(bp, &p_fs->FAT_cache_lru_list);
 	return(bp);
@@ -582,10 +590,11 @@ void buf_modify(struct super_block *sb, UINT32 sec)
 	sm_P(&b_sem);
 
 	bp = buf_cache_find(sb, sec);
-	if (bp != NULL) {
-//        bp->flag |= DIRTYBIT;
+	if (likely(bp != NULL)) {
 		sector_write(sb, sec, bp->buf_bh, 0);
 	}
+
+	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%u).\n", sec);
 
 	sm_V(&b_sem);
 } /* end of buf_modify */
@@ -597,7 +606,9 @@ void buf_lock(struct super_block *sb, UINT32 sec)
 	sm_P(&b_sem);
 
 	bp = buf_cache_find(sb, sec);
-	if (bp != NULL) bp->flag |= LOCKBIT;
+	if (likely(bp != NULL)) bp->flag |= LOCKBIT;
+
+	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%u).\n", sec);
 
 	sm_V(&b_sem);
 } /* end of buf_lock */
@@ -609,7 +620,9 @@ void buf_unlock(struct super_block *sb, UINT32 sec)
 	sm_P(&b_sem);
 
 	bp = buf_cache_find(sb, sec);
-	if (bp != NULL) bp->flag &= ~(LOCKBIT);
+	if (likely(bp != NULL)) bp->flag &= ~(LOCKBIT);
+
+	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%u).\n", sec);
 
 	sm_V(&b_sem);
 } /* end of buf_unlock */
@@ -622,13 +635,15 @@ void buf_release(struct super_block *sb, UINT32 sec)
 	sm_P(&b_sem);
 
 	bp = buf_cache_find(sb, sec);
-	if (bp != NULL) {
+	if (likely(bp != NULL)) {
 		bp->drv = -1;
 		bp->sec = ~0;
 		bp->flag = 0;
 
-		__brelse(bp->buf_bh);
-		bp->buf_bh = NULL;
+		if(bp->buf_bh) {
+			__brelse(bp->buf_bh);
+			bp->buf_bh = NULL;
+		}
 
 		move_to_lru(bp, &p_fs->buf_cache_lru_list);
 	}
@@ -650,8 +665,10 @@ void buf_release_all(struct super_block *sb)
 			bp->sec = ~0;
 			bp->flag = 0;
 
-			__brelse(bp->buf_bh);
-			bp->buf_bh = NULL;
+			if(bp->buf_bh) {
+				__brelse(bp->buf_bh);
+				bp->buf_bh = NULL;
+			}
 		}
 		bp = bp->next;
 	}
@@ -704,8 +721,6 @@ static BUF_CACHE_T *buf_cache_get(struct super_block *sb, UINT32 sec)
 	bp = p_fs->buf_cache_lru_list.prev;
 	while (bp->flag & LOCKBIT) bp = bp->prev;
 
-//    if (bp->flag & DIRTYBIT)
-//       sync_dirty_buffer(bp->buf_bh);
 
 	move_to_mru(bp, &p_fs->buf_cache_lru_list);
 	return(bp);

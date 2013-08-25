@@ -1,3 +1,23 @@
+/* Some of the source code in this file came from "linux/fs/fat/fat.h".  */
+
+/*
+ *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 #ifndef _EXFAT_LINUX_H
 #define _EXFAT_LINUX_H
 
@@ -59,12 +79,14 @@ struct exfat_sb_info {
 
 	struct exfat_mount_options options;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,7,00)
+	int s_dirt;
+	struct mutex s_lock;
+#endif
 	struct nls_table *nls_disk; /* Codepage used on disk */
 	struct nls_table *nls_io;   /* Charset used for input and display */
 
 	struct inode *fat_inode;
-	struct mutex s_lock;
-	short s_dirt;
 
 	spinlock_t inode_hash_lock;
 	struct hlist_head inode_hashtable[EXFAT_HASH_SIZE];
@@ -82,7 +104,10 @@ struct exfat_inode_info {
 	/* NOTE: mmu_private is 64bits, so must hold ->i_mutex to access */
 	loff_t mmu_private;         /* physically allocated size */
 	loff_t i_pos;               /* on-disk position of directory entry or 0 */
-	struct hlist_node i_fat_hash;    /* hash by i_location */
+	struct hlist_node i_hash_fat;	/* hash by i_location */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,00)
+	struct rw_semaphore truncate_lock;
+#endif
 	struct inode vfs_inode;
 	struct rw_semaphore i_alloc_sem; /* protect bmap against truncate */
 };
