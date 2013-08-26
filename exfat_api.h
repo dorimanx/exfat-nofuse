@@ -141,18 +141,18 @@ extern "C" {
 	} CHAIN_T;
 
 	/* file id structure */
-	typedef struct {
-		CHAIN_T     dir;
-		INT32       entry;
-		UINT32      type;
-		UINT32      attr;
-		UINT32      start_clu;
-		UINT64      size;
-		UINT8       flags;
-		INT64       rwoffset;
-		INT32       hint_last_off;
-		UINT32      hint_last_clu;
-	} FILE_ID_T;
+    typedef struct {
+        CHAIN_T     dir;
+        UINT8       flags;
+        INT32       entry;
+        UINT32      type;
+        UINT32      attr;
+        UINT32      start_clu;
+        INT32       hint_last_off;
+        UINT32      hint_last_clu;
+        INT64       rwoffset;
+        UINT64      size;
+    } FILE_ID_T;
 
 	typedef struct {
 		INT8        Name[MAX_NAME_LENGTH *MAX_CHARSET_SIZE];
