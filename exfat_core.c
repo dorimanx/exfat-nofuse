@@ -939,7 +939,7 @@ INT32 ffsMoveFile(struct inode *old_parent_inode, FILE_ID_T *fid, struct inode *
 	INT32 new_entry=0;
 
 	/* check the validity of pointer parameters */
-	if ((new_path == NULL) || (STRLEN(new_path) == 0))
+	if ((new_path == NULL) || (*new_path == '\0'))
 		return FFS_ERROR;
 
 	update_parent_info(fid, old_parent_inode);
@@ -1422,7 +1422,6 @@ INT32 ffsMapCluster(struct inode *inode, INT32 clu_offset, UINT32 *clu)
 				FAT_write(sb, last_clu, new_clu.dir);
 		}
 
-		num_clusters += num_alloced;
 		*clu = new_clu.dir;
 
 		if (p_fs->vol_type == EXFAT) {
@@ -3447,8 +3446,7 @@ ENTRY_SET_CACHE_T *get_entry_set_in_dir (struct super_block *sb, CHAIN_T *p_dir,
 	return es;
 err_out:
 	PRINTK("get_entry_set_in_dir exited NULL (es %p)\n", es);
-	if (es)
-		FREE(es);
+	FREE(es);
 	return NULL;
 }
 
@@ -3730,7 +3728,7 @@ INT32 find_empty_entry(struct inode *inode, CHAIN_T *p_dir, INT32 num_entries)
    -2 : entry with the name does not exist */
 INT32 fat_find_dir_entry(struct super_block *sb, CHAIN_T *p_dir, UNI_NAME_T *p_uniname, INT32 num_entries, DOS_NAME_T *p_dosname, UINT32 type)
 {
-	INT32 i, dentry = 0, lossy = FALSE, len;
+	INT32 i, dentry = 0, len;
 	INT32 order = 0, is_feasible_entry = TRUE, has_ext_entry = FALSE;
 	INT32 dentries_per_clu;
 	UINT32 entry_type;
@@ -3772,7 +3770,7 @@ INT32 fat_find_dir_entry(struct super_block *sb, CHAIN_T *p_dir, UNI_NAME_T *p_u
 						return(dentry);
 
 					dos_ep = (DOS_DENTRY_T *) ep;
-					if ((!lossy) && (!nls_dosname_cmp(sb, p_dosname->name, dos_ep->name)))
+					if (!nls_dosname_cmp(sb, p_dosname->name, dos_ep->name))
 						return(dentry);
 				}
 				is_feasible_entry = TRUE;
