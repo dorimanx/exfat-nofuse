@@ -13,20 +13,19 @@ Big thanks to lqs for completing the driver!
 
 Special thanks to github user AndreiLux for spreading the word about the leak!<br />
 
-To load the driver manually, run this as root:
-> modprobe exfat
-
 
 Installation as stand alone module:
 ====================================
 
-cp Makefile Makefile.bak
-cp Makefile.module Makefile
+> cp Makefile Makefile.bak
+> cp Makefile.module Makefile
 
-> make KDIR="PATH TO KERNEL" SOURCE CROSS_COMPILE="PATH TO ANDROID CHAIN TOOLS AS LINARO/bin/SOMETHING- (see the folder for clue)" <br />
+> make KDIR="path to kernel source" CROSS_COMPILE="path to android chain tools (as linaro)/bin/SOMETHING- (see your folder for clues)" <br />
 
 Example how it's works for me!
-make CROSS_COMPILE=../dorimanx-SG2-I9100-Kernel/android-toolchain/bin/arm-eabi- KDIR=../dorimanx-SG2-I9100-Kernel/
+
+> make CROSS_COMPILE=../dorimanx-SG2-I9100-Kernel/android-toolchain/bin/arm-eabi- KDIR=../dorimanx-SG2-I9100-Kernel/ <br />
+
 exfat.ko module file will be created in exfat source folder. and will work with kernel source you have used.
 
 > make install
@@ -52,14 +51,14 @@ edit fs/Makefile
 cd your kernel source
 make menuconfig
 
-go to: File systems > DOS/FAT/NT > check the exfat as MODULE (M)
-<M> exFAT filesystem support
-(437) Default codepage for exFAT
-(utf8) Default iocharset for exFAT
+Go to:
+> File systems > DOS/FAT/NT > check the exfat as MODULE (M)
+> (437) Default codepage for exFAT
+> (utf8) Default iocharset for exFAT
 
-ESC to main menu
-Save an Alternate Configuration File
-ESC ESC
+> ESC to main menu
+> Save an Alternate Configuration File
+> ESC ESC
 
 build your kernel.
 
