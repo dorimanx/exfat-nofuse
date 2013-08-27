@@ -17,10 +17,25 @@ To load the driver manually, run this as root:
 > modprobe exfat
 
 
-Free Software for the Free Minds!
-=====================================
+Installation as stand alone module:
+====================================
+
+cp Makefile Makefile.bak
+cp Makefile.module Makefile
+
+> make KDIR="PATH TO KERNEL" SOURCE CROSS_COMPILE="PATH TO ANDROID CHAIN TOOLS AS LINARO/bin/SOMETHING- (see the folder for clue)" <br />
+
+Example how it's works for me!
+make CROSS_COMPILE=../dorimanx-SG2-I9100-Kernel/android-toolchain/bin/arm-eabi- KDIR=../dorimanx-SG2-I9100-Kernel/
+exfat.ko module file will be created in exfat source folder. and will work with kernel source you have used.
+
+> make install
+
+To load the driver manually, run this as root:
+> modprobe exfat
 
 To add to kernel you need to do this:
+======================================
 
 cd your kernel source dir
 
@@ -53,3 +68,6 @@ and you will have new module!
 exfat.ko
 
 have fun.
+
+Free Software for the Free Minds!
+=====================================
