@@ -293,7 +293,11 @@ static int exfat_readdir(struct file *filp, struct dir_context *ctx)
 static int exfat_readdir(struct file *filp, void *dirent, filldir_t filldir)
 #endif
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)
 	struct inode *inode = file_inode(d_inode);
+#else
+	struct inode *inode = filp->f_path.dentry->d_inode;
+#endif
 	struct super_block *sb = inode->i_sb;
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	FS_INFO_T *p_fs = &(sbi->fs_info);
