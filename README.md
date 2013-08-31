@@ -9,6 +9,7 @@ Kudos to ksv1986 for the mutex patch!<br />
 Thanks to JackNorris for being awesome and providing the clear_inode() patch.<br />
 <br />
 Big thanks to lqs for completing the driver!
+Big thanks to benpicco for fixing 3.11.y compatibility!
 
 
 Special thanks to github user AndreiLux for spreading the word about the leak!<br />
