@@ -287,9 +287,13 @@ static void __set_sb_clean(struct super_block *sb)
 /*  Directory Entry Operations                                          */
 /*======================================================================*/
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+static int exfat_readdir(struct file *filp, struct dir_context *ctx)
+#else
 static int exfat_readdir(struct file *filp, void *dirent, filldir_t filldir)
+#endif
 {
-	struct inode *inode = filp->f_path.dentry->d_inode;
+	struct inode *inode = file_inode(d_inode);
 	struct super_block *sb = inode->i_sb;
 	struct exfat_sb_info *sbi = EXFAT_SB(sb);
 	FS_INFO_T *p_fs = &(sbi->fs_info);
@@ -301,7 +305,11 @@ static int exfat_readdir(struct file *filp, void *dirent, filldir_t filldir)
 
 	__lock_super(sb);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+	cpos = ctx->pos;
+#else
 	cpos = filp->f_pos;
+#endif
 	/* Fake . and .. for the root directory. */
 	if ((p_fs->vol_type == EXFAT) || (inode->i_ino == EXFAT_ROOT_INO)) {
 		while (cpos < 2) {
@@ -312,10 +320,18 @@ static int exfat_readdir(struct file *filp, void *dirent, filldir_t filldir)
 			else /* (cpos == 1) */
 				inum = parent_ino(filp->f_path.dentry);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+			if (!dir_emit_dots(file, ctx))
+#else
 			if (filldir(dirent, "..", cpos+1, cpos, inum, DT_DIR) < 0)
+#endif
 				goto out;
 			cpos++;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+			ctx->pos++;
+#else
 			filp->f_pos++;
+#endif
 		}
 		if (cpos == 2) {
 			cpos = 0;
@@ -366,15 +382,28 @@ get_new:
 		}
 	}
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+	if (!dir_emit(ctx, de.Name, strlen(de.Name), inum,
+		(de.Attr & ATTR_SUBDIR) ? DT_DIR : DT_REG))
+#else
 	if (filldir(dirent, de.Name, strlen(de.Name), cpos-1, inum,
 				(de.Attr & ATTR_SUBDIR) ? DT_DIR : DT_REG) < 0)
+#endif
 		goto out;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+	ctx->pos = cpos;
+#else
 	filp->f_pos = cpos;
+#endif
 	goto get_new;
 
 end_of_dir:
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+	ctx->pos = cpos;
+#else
 	filp->f_pos = cpos;
+#endif
 out:
 	__unlock_super(sb);
 	return err;
@@ -454,7 +483,11 @@ static int exfat_file_fsync(struct file *filp, int datasync)
 const struct file_operations exfat_dir_operations = {
 	.llseek     = generic_file_llseek,
 	.read       = generic_read_dir,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
+	.iterate    = exfat_readdir,
+#else
 	.readdir    = exfat_readdir,
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
 	.ioctl      = exfat_generic_ioctl,
 	.fsync      = exfat_file_fsync,
