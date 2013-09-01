@@ -325,7 +325,7 @@ static int exfat_readdir(struct file *filp, void *dirent, filldir_t filldir)
 				inum = parent_ino(filp->f_path.dentry);
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)
-			if (!dir_emit_dots(file, ctx))
+			if (!dir_emit_dots(filp, ctx))
 #else
 			if (filldir(dirent, "..", cpos+1, cpos, inum, DT_DIR) < 0)
 #endif
