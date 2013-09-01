@@ -18,21 +18,19 @@ Special thanks to github user AndreiLux for spreading the word about the leak!<b
 Installation as stand alone module:
 ====================================
 
-> cp Makefile Makefile.bak
-> cp Makefile.module Makefile
-
-> make KDIR="path to kernel source" CROSS_COMPILE="path to android chain tools (as linaro)/bin/SOMETHING- (see your folder for clues)" <br />
+    make -f Makefile.module KDIR="path to kernel source" CROSS_COMPILE="path to android chain tools (as linaro)/bin/SOMETHING- (see your folder for clues)"
 
 Example how it's works for me!
 
-> make CROSS_COMPILE=../dorimanx-SG2-I9100-Kernel/android-toolchain/bin/arm-eabi- KDIR=../dorimanx-SG2-I9100-Kernel/ <br />
+    make -f Makefile.module CROSS_COMPILE=../dorimanx-SG2-I9100-Kernel/android-toolchain/bin/arm-eabi- KDIR=../dorimanx-SG2-I9100-Kernel/
 
 exfat.ko module file will be created in exfat source folder. and will work with kernel source you have used.
 
-> make install
+    make -f Makefile.module install
 
 To load the driver manually, run this as root:
-> modprobe exfat
+
+    modprobe exfat
 
 To add to kernel you need to do this:
 ======================================
