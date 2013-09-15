@@ -39,7 +39,7 @@ cd your kernel source dir
 
 mkdir fs/exfat
 
-copy all files (exept .git) from exfat-nofuse to your kernel source fs/exfat/
+copy all files (except .git and .gitignore) from exfat-nofuse to your kernel source fs/exfat/
 
 see
 https://github.com/dorimanx/Dorimanx-SG2-I9100-Kernel/commit/e8fc728a68096db9ffcebff40244ebfb60a3de18
