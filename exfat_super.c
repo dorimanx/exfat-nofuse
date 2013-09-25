@@ -2163,11 +2163,6 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	sbi->nls_io = load_nls(sbi->options.iocharset);
-	if (!sbi->nls_io) {
-		printk(KERN_ERR "[EXFAT] IO charset %s not found\n",
-			   sbi->options.iocharset);
-		goto out_fail2;
-	}
 
 	error = -ENOMEM;
 	root_inode = new_inode(sb);

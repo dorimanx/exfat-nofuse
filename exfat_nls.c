@@ -265,6 +265,12 @@ void nls_uniname_to_cstring(struct super_block *sb, UINT8 *p_cstring, UNI_NAME_T
 	UINT16 *uniname = p_uniname->name;
 	struct nls_table *nls = EXFAT_SB(sb)->nls_io;
 
+	if (nls == NULL) {
+		len = utf16s_to_utf8s(uniname, MAX_NAME_LENGTH, UTF16_HOST_ENDIAN, p_cstring, MAX_NAME_LENGTH);
+		p_cstring[len] = 0;
+		return;
+	}
+
 	i = 0;
 	while (i < (MAX_NAME_LENGTH-1)) {
 		if (*uniname == (UINT16) '\0') break;
@@ -314,24 +320,32 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 	if (*p_cstring == '\0')
 		lossy = TRUE;
 
-	i = j = 0;
-	while (j < (MAX_NAME_LENGTH-1)) {
-		if (*(p_cstring+i) == '\0') break;
-
-		i += convert_ch_to_uni(nls, uniname, (UINT8 *)(p_cstring+i), &lossy);
-
-		if ((*uniname < 0x0020) || WSTRCHR(bad_uni_chars, *uniname))
-			lossy = TRUE;
-
-		SET16_A(upname + j * 2, nls_upper(sb, *uniname));
-
-		uniname++;
-		j++;
+	if (nls == NULL) {
+		i = utf8s_to_utf16s(p_cstring, MAX_NAME_LENGTH, UTF16_HOST_ENDIAN, uniname, MAX_NAME_LENGTH);
+		for (j = 0; j < i; j++)
+			SET16_A(upname + j * 2, nls_upper(sb, uniname[j]));
+		uniname[i] = '\0';
 	}
+	else {
+		i = j = 0;
+		while (j < (MAX_NAME_LENGTH-1)) {
+			if (*(p_cstring+i) == '\0') break;
 
-	if (*(p_cstring+i) != '\0')
-		lossy = TRUE;
-	*uniname = (UINT16) '\0';
+			i += convert_ch_to_uni(nls, uniname, (UINT8 *)(p_cstring+i), &lossy);
+
+			if ((*uniname < 0x0020) || WSTRCHR(bad_uni_chars, *uniname))
+				lossy = TRUE;
+
+			SET16_A(upname + j * 2, nls_upper(sb, *uniname));
+
+			uniname++;
+			j++;
+		}
+
+		if (*(p_cstring+i) != '\0')
+			lossy = TRUE;
+		*uniname = (UINT16) '\0';
+	}
 
 	p_uniname->name_len = j;
 	p_uniname->name_hash = calc_checksum_2byte((void *) upname, j<<1, 0, CS_DEFAULT);
