@@ -1448,7 +1448,7 @@ static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb,
 #endif
 			return 0;
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,00)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,00)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,13,0)
 	ret = blockdev_direct_IO(rw, iocb, inode, iter,
 					offset, exfat_get_block);
@@ -1586,7 +1586,7 @@ static int exfat_fill_inode(struct inode *inode, FILE_ID_T *fid)
 
 		i_size_write(inode, info.Size);
 		EXFAT_I(inode)->mmu_private = i_size_read(inode);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,00)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,00)
 		set_nlink(inode,info.NumSubdirs);
 #else
 		inode->i_nlink = info.NumSubdirs;
@@ -2090,7 +2090,7 @@ static int exfat_read_root(struct inode *inode)
 
 	exfat_save_attr(inode, ATTR_SUBDIR);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,00)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,00)
 	set_nlink(inode,info.NumSubdirs + 2);
 #else
 	inode->i_nlink = info.NumSubdirs + 2;
