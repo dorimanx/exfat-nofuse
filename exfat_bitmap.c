@@ -19,8 +19,8 @@
 /************************************************************************/
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : exfat_data.h                                              */
-/*  PURPOSE : Header File for exFAT Configuable Constants               */
+/*  FILE    : exfat_global.c                                            */
+/*  PURPOSE : exFAT Miscellaneous Functions                             */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
 /*  NOTES                                                               */
@@ -32,46 +32,32 @@
 /*                                                                      */
 /************************************************************************/
 
-#ifndef _EXFAT_DATA_H
-#define _EXFAT_DATA_H
-
 #include "exfat_config.h"
+#include "exfat_bitmap.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+/*----------------------------------------------------------------------*/
+/*  Bitmap Manipulation Functions                                       */
+/*----------------------------------------------------------------------*/
 
-  /*======================================================================*/
-  /*                                                                      */
-  /*                        FFS CONFIGURATIONS                            */
-  /*                  (CHANGE THIS PART IF REQUIRED)                      */
-  /*                                                                      */
-  /*======================================================================*/
+#define BITMAP_LOC(v)           ((v) >> 3)
+#define BITMAP_SHIFT(v)         ((v) & 0x07)
 
-/* max number of block devices                      */
-#define MAX_DEVICE              2
+s32 exfat_bitmap_test(u8 *bitmap, s32 i)
+{
+	u8 data;
 
-/* max number of volumes on all block devices       */
-#define MAX_DRIVE               2
+	data = bitmap[BITMAP_LOC(i)];
+	if ((data >> BITMAP_SHIFT(i)) & 0x01)
+		return 1;
+	return 0;
+} /* end of Bitmap_test */
 
-/* max number of open files                         */
-#define MAX_OPEN                20
+void exfat_bitmap_set(u8 *bitmap, s32 i)
+{
+	bitmap[BITMAP_LOC(i)] |= (0x01 << BITMAP_SHIFT(i));
+} /* end of Bitmap_set */
 
-/* max number of root directory entries in FAT12/16 */
-/* (should be an exponential value of 2)            */
-#define MAX_DENTRY              512
-
-/* cache size (in number of sectors)                */
-/* (should be an exponential value of 2)            */
-#define FAT_CACHE_SIZE          128
-#define FAT_CACHE_HASH_SIZE     64
-#define BUF_CACHE_SIZE          256
-#define BUF_CACHE_HASH_SIZE     64
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* _EXFAT_DATA_H */
-
-/* end of exfat_data.h */
+void exfat_bitmap_clear(u8 *bitmap, s32 i)
+{
+	bitmap[BITMAP_LOC(i)] &= ~(0x01 << BITMAP_SHIFT(i));
+} /* end of Bitmap_clear */

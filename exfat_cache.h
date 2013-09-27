@@ -36,14 +36,15 @@
 #ifndef _EXFAT_CACHE_H
 #define _EXFAT_CACHE_H
 
+#include <linux/fs.h>
+#include <linux/types.h>
 #include "exfat_config.h"
-#include "exfat_global.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-  /*----------------------------------------------------------------------*/
+	/*----------------------------------------------------------------------*/
 	/*  Constant & Macro Definitions                                        */
 	/*----------------------------------------------------------------------*/
 
@@ -59,9 +60,9 @@ extern "C" {
 		struct __BUF_CACHE_T *prev;
 		struct __BUF_CACHE_T *hash_next;
 		struct __BUF_CACHE_T *hash_prev;
-		INT32                drv;
-		UINT32               sec;
-		UINT32               flag;
+		s32                drv;
+		u32               sec;
+		u32               flag;
 		struct buffer_head   *buf_bh;
 	} BUF_CACHE_T;
 
@@ -69,19 +70,19 @@ extern "C" {
 	/*  External Function Declarations                                      */
 	/*----------------------------------------------------------------------*/
 
-	INT32  buf_init(struct super_block *sb);
-	INT32  buf_shutdown(struct super_block *sb);
-	INT32  FAT_read(struct super_block *sb, UINT32 loc, UINT32 *content);
-	INT32  FAT_write(struct super_block *sb, UINT32 loc, UINT32 content);
-	UINT8 *FAT_getblk(struct super_block *sb, UINT32 sec);
-	void   FAT_modify(struct super_block *sb, UINT32 sec);
+	s32  buf_init(struct super_block *sb);
+	s32  buf_shutdown(struct super_block *sb);
+	s32  FAT_read(struct super_block *sb, u32 loc, u32 *content);
+	s32  FAT_write(struct super_block *sb, u32 loc, u32 content);
+	u8 *FAT_getblk(struct super_block *sb, u32 sec);
+	void   FAT_modify(struct super_block *sb, u32 sec);
 	void   FAT_release_all(struct super_block *sb);
 	void   FAT_sync(struct super_block *sb);
-	UINT8 *buf_getblk(struct super_block *sb, UINT32 sec);
-	void   buf_modify(struct super_block *sb, UINT32 sec);
-	void   buf_lock(struct super_block *sb, UINT32 sec);
-	void   buf_unlock(struct super_block *sb, UINT32 sec);
-	void   buf_release(struct super_block *sb, UINT32 sec);
+	u8 *buf_getblk(struct super_block *sb, u32 sec);
+	void   buf_modify(struct super_block *sb, u32 sec);
+	void   buf_lock(struct super_block *sb, u32 sec);
+	void   buf_unlock(struct super_block *sb, u32 sec);
+	void   buf_release(struct super_block *sb, u32 sec);
 	void   buf_release_all(struct super_block *sb);
 	void   buf_sync(struct super_block *sb);
 

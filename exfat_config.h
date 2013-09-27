@@ -89,9 +89,26 @@ extern "C" {
 /*----------------------------------------------------------------------*/
 /* Feature Config                                                       */
 /*----------------------------------------------------------------------*/
-#define EXFAT_CONFIG_DISCARD		1	// mount option -o discard support
-#define EXFAT_CONFIG_KERNEL_DEBUG	1	// kernel debug features via ioctl
-#define EXFAT_CONFIG_DEBUG_MSG		0	// debugging message on/off
+#ifndef CONFIG_EXFAT_DISCARD
+#define CONFIG_EXFAT_DISCARD		1	/* mount option -o discard support */
+#endif
+
+#ifndef CONFIG_EXFAT_DELAYED_SYNC
+#define CONFIG_EXFAT_DELAYED_SYNC 0
+#endif
+
+#ifndef CONFIG_EXFAT_KERNEL_DEBUG
+#define CONFIG_EXFAT_KERNEL_DEBUG	1	/* kernel debug features via ioctl */
+#endif
+
+#ifndef CONFIG_EXFAT_DEBUG_MSG
+#define CONFIG_EXFAT_DEBUG_MSG		0	/* debugging message on/off */
+#endif
+
+#ifndef CONFIG_EXFAT_DEFAULT_CODEPAGE
+#define CONFIG_EXFAT_DEFAULT_CODEPAGE	437
+#define CONFIG_EXFAT_DEFAULT_IOCHARSET	"utf8"
+#endif
 
 #ifdef __cplusplus
 }
