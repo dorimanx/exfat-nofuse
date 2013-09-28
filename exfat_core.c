@@ -3270,7 +3270,7 @@ ENTRY_SET_CACHE_T *get_entry_set_in_dir(struct super_block *sb, CHAIN_T *p_dir, 
 	else
 		num_entries = type;
 
-	DPRINTK("trying to kmalloc %x bytes for %d entries\n", offsetof(ENTRY_SET_CACHE_T, __buf) + (num_entries)  * sizeof(DENTRY_T), num_entries);
+	DPRINTK("trying to kmalloc %zx bytes for %d entries\n", offsetof(ENTRY_SET_CACHE_T, __buf) + (num_entries)  * sizeof(DENTRY_T), num_entries);
 	es = kmalloc(offsetof(ENTRY_SET_CACHE_T, __buf) + (num_entries)  * sizeof(DENTRY_T), GFP_KERNEL);
 	if (es == NULL)
 		goto err_out;
