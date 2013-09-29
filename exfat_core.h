@@ -64,8 +64,6 @@
 	/*  Constant & Macro Definitions                                        */
 	/*----------------------------------------------------------------------*/
 
-#define MAX_VOLUME              4           /* max num of volumes per device */
-
 #define DENTRY_SIZE             32          /* dir entry size */
 #define DENTRY_SIZE_BITS        5
 
@@ -417,13 +415,6 @@ typedef struct {
 	CHAIN_T     clu;
 } UENTRY_T;
 
-/* file system volume information structure */
-typedef struct __FS_STRUCT_T {
-	u32      mounted;
-	struct super_block *sb;
-	struct semaphore v_sem;
-} FS_STRUCT_T;
-
 typedef struct {
 	s32       (*alloc_cluster)(struct super_block *sb, s32 num_alloc, CHAIN_T *p_chain);
 	void        (*free_cluster)(struct super_block *sb, CHAIN_T *p_chain, s32 do_relse);
@@ -492,6 +483,7 @@ typedef struct __FS_INFO_T {
 	u32      dev_ejected;            /* block device operation error flag */
 
 	FS_FUNC_T	*fs_func;
+	struct semaphore v_sem;
 
 	/* FAT cache */
 	BUF_CACHE_T FAT_cache_array[FAT_CACHE_SIZE];
@@ -527,7 +519,7 @@ s32 ffsInit(void);
 s32 ffsShutdown(void);
 
 /* volume management functions */
-s32 ffsMountVol(struct super_block *sb, s32 drv);
+s32 ffsMountVol(struct super_block *sb);
 s32 ffsUmountVol(struct super_block *sb);
 s32 ffsCheckVol(struct super_block *sb);
 s32 ffsGetVolInfo(struct super_block *sb, VOL_INFO_T *info);

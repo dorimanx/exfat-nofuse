@@ -44,8 +44,6 @@
 /*  Global Variable Definitions                                         */
 /*----------------------------------------------------------------------*/
 
-extern FS_STRUCT_T      fs_struct[];
-
 #define sm_P(s)
 #define sm_V(s)
 

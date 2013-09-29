@@ -157,7 +157,7 @@ s32 ffsShutdown(void)
 } /* end of ffsShutdown */
 
 /* ffsMountVol : mount the file system volume */
-s32 ffsMountVol(struct super_block *sb, s32 drv)
+s32 ffsMountVol(struct super_block *sb)
 {
 	s32 i, ret;
 	PBR_SECTOR_T *p_pbr;
@@ -167,7 +167,7 @@ s32 ffsMountVol(struct super_block *sb, s32 drv)
 
 	printk("[EXFAT] trying to mount...\n");
 
-	p_fs->drv = drv;
+	sm_init(&p_fs->v_sem);
 	p_fs->dev_ejected = FALSE;
 
 	/* open the block device */

@@ -44,15 +44,6 @@
 /*                                                                      */
 /*======================================================================*/
 
-/* max number of block devices                      */
-#define MAX_DEVICE              2
-
-/* max number of volumes on all block devices       */
-#define MAX_DRIVE               2
-
-/* max number of open files                         */
-#define MAX_OPEN                20
-
 /* max number of root directory entries in FAT12/16 */
 /* (should be an exponential value of 2)            */
 #define MAX_DENTRY              512
