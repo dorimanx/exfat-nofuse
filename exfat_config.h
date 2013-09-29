@@ -35,10 +35,6 @@
 #ifndef _EXFAT_CONFIG_H
 #define _EXFAT_CONFIG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 /*======================================================================*/
 /*                                                                      */
 /*                        FFS CONFIGURATIONS                            */
@@ -109,10 +105,6 @@ extern "C" {
 #define CONFIG_EXFAT_DEFAULT_CODEPAGE	437
 #define CONFIG_EXFAT_DEFAULT_IOCHARSET	"utf8"
 #endif
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
 
 #endif /* _EXFAT_CONFIG_H */
 

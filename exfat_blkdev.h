@@ -38,44 +38,37 @@
 #include <linux/fs.h>
 #include "exfat_config.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+/*----------------------------------------------------------------------*/
+/*  Constant & Macro Definitions (Non-Configurable)                     */
+/*----------------------------------------------------------------------*/
 
-  /*----------------------------------------------------------------------*/
-	/*  Constant & Macro Definitions (Non-Configurable)                     */
-	/*----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*  Type Definitions                                                    */
+/*----------------------------------------------------------------------*/
 
-	/*----------------------------------------------------------------------*/
-	/*  Type Definitions                                                    */
-	/*----------------------------------------------------------------------*/
+typedef struct __BD_INFO_T {
+	s32 sector_size;      /* in bytes */
+	s32 sector_size_bits;
+	s32 sector_size_mask;
+	s32 num_sectors;      /* total number of sectors in this block device */
+	bool  opened;           /* opened or not */
+} BD_INFO_T;
 
-	typedef struct __BD_INFO_T {
-		s32 sector_size;      /* in bytes */
-		s32 sector_size_bits;
-		s32 sector_size_mask;
-		s32 num_sectors;      /* total number of sectors in this block device */
-		bool  opened;           /* opened or not */
-	} BD_INFO_T;
+/*----------------------------------------------------------------------*/
+/*  External Variable Declarations                                      */
+/*----------------------------------------------------------------------*/
 
-	/*----------------------------------------------------------------------*/
-	/*  External Variable Declarations                                      */
-	/*----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*  External Function Declarations                                      */
+/*----------------------------------------------------------------------*/
 
-	/*----------------------------------------------------------------------*/
-	/*  External Function Declarations                                      */
-	/*----------------------------------------------------------------------*/
-
-	s32 bdev_init(void);
-	s32 bdev_shutdown(void);
-	s32 bdev_open(struct super_block *sb);
-	s32 bdev_close(struct super_block *sb);
-	s32 bdev_read(struct super_block *sb, u32 secno, struct buffer_head **bh, u32 num_secs, s32 read);
-	s32 bdev_write(struct super_block *sb, u32 secno, struct buffer_head *bh, u32 num_secs, s32 sync);
-	s32 bdev_sync(struct super_block *sb);
-#ifdef __cplusplus
-}
-#endif /* __cplusplus  */
+s32 bdev_init(void);
+s32 bdev_shutdown(void);
+s32 bdev_open(struct super_block *sb);
+s32 bdev_close(struct super_block *sb);
+s32 bdev_read(struct super_block *sb, u32 secno, struct buffer_head **bh, u32 num_secs, s32 read);
+s32 bdev_write(struct super_block *sb, u32 secno, struct buffer_head *bh, u32 num_secs, s32 sync);
+s32 bdev_sync(struct super_block *sb);
 
 #endif /* _EXFAT_BLKDEV_H */
 

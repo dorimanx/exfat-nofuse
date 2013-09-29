@@ -40,13 +40,9 @@
 #include "exfat_config.h"
 #include "exfat_api.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-  /*----------------------------------------------------------------------*/
-	/*  Constant & Macro Definitions                                        */
-	/*----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
+/*  Constant & Macro Definitions                                        */
+/*----------------------------------------------------------------------*/
 
 #define NUM_UPCASE              2918
 
@@ -90,10 +86,6 @@ void   nls_uniname_to_dosname(struct super_block *sb, DOS_NAME_T *p_dosname, UNI
 void   nls_dosname_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, DOS_NAME_T *p_dosname);
 void   nls_uniname_to_cstring(struct super_block *sb, u8 *p_cstring, UNI_NAME_T *p_uniname);
 void   nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, u8 *p_cstring, s32 *p_lossy);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
 
 #endif /* _EXFAT_NLS_H */
 
