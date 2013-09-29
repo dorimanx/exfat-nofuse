@@ -35,6 +35,7 @@
 #ifndef _EXFAT_NLS_H
 #define _EXFAT_NLS_H
 
+#include <linux/types.h>
 #include <linux/nls.h>
 
 #include "exfat_config.h"
