@@ -194,7 +194,7 @@
 #define UTBL_ROW_COUNT (1<<LOW_INDEX_BIT)
 #define UTBL_COL_COUNT (1<<HIGH_INDEX_BIT)
 
-#ifdef CONFIG_EXFAT_DEBUG_MSG
+#if CONFIG_EXFAT_DEBUG_MSG
 #define DPRINTK(...)			\
 	do {								\
 		printk("[EXFAT] " __VA_ARGS__);	\
