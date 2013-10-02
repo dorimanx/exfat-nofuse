@@ -75,12 +75,12 @@ extern struct semaphore z_sem;
 /*  exFAT Filesystem Init & Exit Functions                              */
 /*----------------------------------------------------------------------*/
 
-s32 FsInit(void)
+int FsInit(void)
 {
 	return ffsInit();
 }
 
-s32 FsShutdown(void)
+int FsShutdown(void)
 {
 	return ffsShutdown();
 }
@@ -90,9 +90,9 @@ s32 FsShutdown(void)
 /*----------------------------------------------------------------------*/
 
 /* FsMountVol : mount the file system volume */
-s32 FsMountVol(struct super_block *sb)
+int FsMountVol(struct super_block *sb)
 {
-	s32 err;
+	int err;
 
 	sm_P(&z_sem);
 
@@ -108,9 +108,9 @@ s32 FsMountVol(struct super_block *sb)
 } /* end of FsMountVol */
 
 /* FsUmountVol : unmount the file system volume */
-s32 FsUmountVol(struct super_block *sb)
+int FsUmountVol(struct super_block *sb)
 {
-	s32 err;
+	int err;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
 	sm_P(&z_sem);
@@ -130,9 +130,9 @@ s32 FsUmountVol(struct super_block *sb)
 } /* end of FsUmountVol */
 
 /* FsGetVolInfo : get the information of a file system volume */
-s32 FsGetVolInfo(struct super_block *sb, VOL_INFO_T *info)
+int FsGetVolInfo(struct super_block *sb, VOL_INFO_T *info)
 {
-	s32 err;
+	int err;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
 	/* check the validity of pointer parameters */
@@ -151,9 +151,9 @@ s32 FsGetVolInfo(struct super_block *sb, VOL_INFO_T *info)
 } /* end of FsGetVolInfo */
 
 /* FsSyncVol : synchronize a file system volume */
-s32 FsSyncVol(struct super_block *sb, s32 do_sync)
+int FsSyncVol(struct super_block *sb, int do_sync)
 {
-	s32 err;
+	int err;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
 	/* acquire the lock for file system critical section */
@@ -173,9 +173,9 @@ s32 FsSyncVol(struct super_block *sb, s32 do_sync)
 /*----------------------------------------------------------------------*/
 
 /* FsCreateFile : create a file */
-s32 FsLookupFile(struct inode *inode, char *path, FILE_ID_T *fid)
+int FsLookupFile(struct inode *inode, char *path, FILE_ID_T *fid)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -195,9 +195,9 @@ s32 FsLookupFile(struct inode *inode, char *path, FILE_ID_T *fid)
 } /* end of FsLookupFile */
 
 /* FsCreateFile : create a file */
-s32 FsCreateFile(struct inode *inode, char *path, u8 mode, FILE_ID_T *fid)
+int FsCreateFile(struct inode *inode, char *path, u8 mode, FILE_ID_T *fid)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -216,9 +216,9 @@ s32 FsCreateFile(struct inode *inode, char *path, u8 mode, FILE_ID_T *fid)
 	return err;
 } /* end of FsCreateFile */
 
-s32 FsReadFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount)
+int FsReadFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -241,9 +241,9 @@ s32 FsReadFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64
 	return err;
 } /* end of FsReadFile */
 
-s32 FsWriteFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount)
+int FsWriteFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -267,9 +267,9 @@ s32 FsWriteFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u6
 } /* end of FsWriteFile */
 
 /* FsTruncateFile : resize the file length */
-s32 FsTruncateFile(struct inode *inode, u64 old_size, u64 new_size)
+int FsTruncateFile(struct inode *inode, u64 old_size, u64 new_size)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -289,9 +289,9 @@ s32 FsTruncateFile(struct inode *inode, u64 old_size, u64 new_size)
 } /* end of FsTruncateFile */
 
 /* FsMoveFile : move(rename) a old file into a new file */
-s32 FsMoveFile(struct inode *old_parent_inode, FILE_ID_T *fid, struct inode *new_parent_inode, struct dentry *new_dentry)
+int FsMoveFile(struct inode *old_parent_inode, FILE_ID_T *fid, struct inode *new_parent_inode, struct dentry *new_dentry)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = old_parent_inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -311,9 +311,9 @@ s32 FsMoveFile(struct inode *old_parent_inode, FILE_ID_T *fid, struct inode *new
 } /* end of FsMoveFile */
 
 /* FsRemoveFile : remove a file */
-s32 FsRemoveFile(struct inode *inode, FILE_ID_T *fid)
+int FsRemoveFile(struct inode *inode, FILE_ID_T *fid)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -333,9 +333,9 @@ s32 FsRemoveFile(struct inode *inode, FILE_ID_T *fid)
 } /* end of FsRemoveFile */
 
 /* FsSetAttr : set the attribute of a given file */
-s32 FsSetAttr(struct inode *inode, u32 attr)
+int FsSetAttr(struct inode *inode, u32 attr)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -351,9 +351,9 @@ s32 FsSetAttr(struct inode *inode, u32 attr)
 } /* end of FsSetAttr */
 
 /* FsReadStat : get the information of a given file */
-s32 FsReadStat(struct inode *inode, DIR_ENTRY_T *info)
+int FsReadStat(struct inode *inode, DIR_ENTRY_T *info)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -369,9 +369,9 @@ s32 FsReadStat(struct inode *inode, DIR_ENTRY_T *info)
 } /* end of FsReadStat */
 
 /* FsWriteStat : set the information of a given file */
-s32 FsWriteStat(struct inode *inode, DIR_ENTRY_T *info)
+int FsWriteStat(struct inode *inode, DIR_ENTRY_T *info)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -391,9 +391,9 @@ s32 FsWriteStat(struct inode *inode, DIR_ENTRY_T *info)
 } /* end of FsWriteStat */
 
 /* FsMapCluster : return the cluster number in the given cluster offset */
-s32 FsMapCluster(struct inode *inode, s32 clu_offset, u32 *clu)
+int FsMapCluster(struct inode *inode, s32 clu_offset, u32 *clu)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -417,9 +417,9 @@ s32 FsMapCluster(struct inode *inode, s32 clu_offset, u32 *clu)
 /*----------------------------------------------------------------------*/
 
 /* FsCreateDir : create(make) a directory */
-s32 FsCreateDir(struct inode *inode, char *path, FILE_ID_T *fid)
+int FsCreateDir(struct inode *inode, char *path, FILE_ID_T *fid)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -439,9 +439,9 @@ s32 FsCreateDir(struct inode *inode, char *path, FILE_ID_T *fid)
 } /* end of FsCreateDir */
 
 /* FsReadDir : read a directory entry from the opened directory */
-s32 FsReadDir(struct inode *inode, DIR_ENTRY_T *dir_entry)
+int FsReadDir(struct inode *inode, DIR_ENTRY_T *dir_entry)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -461,9 +461,9 @@ s32 FsReadDir(struct inode *inode, DIR_ENTRY_T *dir_entry)
 } /* end of FsReadDir */
 
 /* FsRemoveDir : remove a directory */
-s32 FsRemoveDir(struct inode *inode, FILE_ID_T *fid)
+int FsRemoveDir(struct inode *inode, FILE_ID_T *fid)
 {
-	s32 err;
+	int err;
 	struct super_block *sb = inode->i_sb;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -503,7 +503,7 @@ EXPORT_SYMBOL(FsRemoveDir);
 
 #ifdef CONFIG_EXFAT_KERNEL_DEBUG
 /* FsReleaseCache: Release FAT & buf cache */
-s32 FsReleaseCache(struct super_block *sb)
+int FsReleaseCache(struct super_block *sb)
 {
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 

@@ -48,8 +48,8 @@
 /*  Bitmap Manipulation Functions                                       */
 /*----------------------------------------------------------------------*/
 
-s32	exfat_bitmap_test(u8 *bitmap, s32 i);
-void	exfat_bitmap_set(u8 *bitmap, s32 i);
-void	exfat_bitmap_clear(u8 *bitmpa, s32 i);
+s32	exfat_bitmap_test(u8 *bitmap, int i);
+void	exfat_bitmap_set(u8 *bitmap, int i);
+void	exfat_bitmap_clear(u8 *bitmpa, int i);
 
 #endif /* _EXFAT_BITMAP_H */

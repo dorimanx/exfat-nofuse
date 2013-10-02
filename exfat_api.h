@@ -173,32 +173,32 @@ typedef struct {
 /*----------------------------------------------------------------------*/
 
 /* file system initialization & shutdown functions */
-s32 FsInit(void);
-s32 FsShutdown(void);
+	int FsInit(void);
+	int FsShutdown(void);
 
 /* volume management functions */
-s32 FsMountVol(struct super_block *sb);
-s32 FsUmountVol(struct super_block *sb);
-s32 FsGetVolInfo(struct super_block *sb, VOL_INFO_T *info);
-s32 FsSyncVol(struct super_block *sb, s32 do_sync);
+	int FsMountVol(struct super_block *sb);
+	int FsUmountVol(struct super_block *sb);
+	int FsGetVolInfo(struct super_block *sb, VOL_INFO_T *info);
+	int FsSyncVol(struct super_block *sb, int do_sync);
 
 /* file management functions */
-s32 FsLookupFile(struct inode *inode, char *path, FILE_ID_T *fid);
-s32 FsCreateFile(struct inode *inode, char *path, u8 mode, FILE_ID_T *fid);
-s32 FsReadFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount);
-s32 FsWriteFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount);
-s32 FsTruncateFile(struct inode *inode, u64 old_size, u64 new_size);
-s32 FsMoveFile(struct inode *old_parent_inode, FILE_ID_T *fid, struct inode *new_parent_inode, struct dentry *new_dentry);
-s32 FsRemoveFile(struct inode *inode, FILE_ID_T *fid);
-s32 FsSetAttr(struct inode *inode, u32 attr);
-s32 FsReadStat(struct inode *inode, DIR_ENTRY_T *info);
-s32 FsWriteStat(struct inode *inode, DIR_ENTRY_T *info);
-s32 FsMapCluster(struct inode *inode, s32 clu_offset, u32 *clu);
+	int FsLookupFile(struct inode *inode, char *path, FILE_ID_T *fid);
+	int FsCreateFile(struct inode *inode, char *path, u8 mode, FILE_ID_T *fid);
+	int FsReadFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *rcount);
+	int FsWriteFile(struct inode *inode, FILE_ID_T *fid, void *buffer, u64 count, u64 *wcount);
+	int FsTruncateFile(struct inode *inode, u64 old_size, u64 new_size);
+	int FsMoveFile(struct inode *old_parent_inode, FILE_ID_T *fid, struct inode *new_parent_inode, struct dentry *new_dentry);
+	int FsRemoveFile(struct inode *inode, FILE_ID_T *fid);
+	int FsSetAttr(struct inode *inode, u32 attr);
+	int FsReadStat(struct inode *inode, DIR_ENTRY_T *info);
+	int FsWriteStat(struct inode *inode, DIR_ENTRY_T *info);
+	int FsMapCluster(struct inode *inode, s32 clu_offset, u32 *clu);
 
 /* directory management functions */
-s32 FsCreateDir(struct inode *inode, char *path, FILE_ID_T *fid);
-s32 FsReadDir(struct inode *inode, DIR_ENTRY_T *dir_entry);
-s32 FsRemoveDir(struct inode *inode, FILE_ID_T *fid);
+	int FsCreateDir(struct inode *inode, char *path, FILE_ID_T *fid);
+	int FsReadDir(struct inode *inode, DIR_ENTRY_T *dir_entry);
+	int FsRemoveDir(struct inode *inode, FILE_ID_T *fid);
 
 /* debug functions */
 s32 FsReleaseCache(struct super_block *sb);

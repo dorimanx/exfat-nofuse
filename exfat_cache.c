@@ -75,7 +75,7 @@ s32 buf_init(struct super_block *sb)
 {
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
-	s32 i;
+	int i;
 
 	/* LRU list */
 	p_fs->FAT_cache_lru_list.next = p_fs->FAT_cache_lru_list.prev = &p_fs->FAT_cache_lru_list;
