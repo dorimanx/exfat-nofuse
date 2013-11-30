@@ -31,12 +31,12 @@ You may also specify custom toolchains by using CROSS_COMPILE flag, in my case:
 Installing as a part of the kernel:
 ======================================
 
-Let's take <linux> as the path to your kernel source dir...
+Let's take [linux] as the path to your kernel source dir...
 
-	cd <linux>
-	cp -rvf exfat-nofuse <linux>/fs/exfat
+	cd [linux]
+	cp -rvf exfat-nofuse [linux]/fs/exfat
 
-edit <linux>/fs/Kconfig
+edit [linux]/fs/Kconfig
 ```
  menu "DOS/FAT/NT Filesystems"
   
@@ -47,14 +47,14 @@ edit <linux>/fs/Kconfig
   
   endmenu
 
-edit <linux>/fs/Makefile
+edit [linux]/fs/Makefile
 ```
   obj-$(CONFIG_FAT_FS)    += fat/
  +obj-$(CONFIG_EXFAT_FS)  += exfat/
   obj-$(CONFIG_BFS_FS)    += bfs/
 ```
 
-	cd <linux>
+	cd [linux]
 	make menuconfig
 
 Go to:
