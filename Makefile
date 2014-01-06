@@ -17,6 +17,7 @@ EXTRA_FLAGS += -I$(PWD)
 
 #KDIR	:= /usr/src/linux/
 KDIR	:= /lib/modules/$(shell uname -r)/build
+MDIR	:= /lib/modules/$(shell uname -r)
 PWD		:= $(shell pwd)
 
 export CONFIG_EXFAT_FS := m
@@ -31,12 +32,12 @@ help:
 	$(MAKE) -C $(KDIR) M=$(PWD) help
 
 install: exfat.ko
-	rm -f ${KDIR}/../kernel/fs/exfat/exfat.ko
-	install -m644 -b -D exfat.ko ${KDIR}/../kernel/fs/exfat/exfat.ko
+	rm -f ${MDIR}/kernel/fs/exfat/exfat.ko
+	install -m644 -b -D exfat.ko ${MDIR}/kernel/fs/exfat/exfat.ko
 	depmod -aq
 
 uninstall:
-	rm -rf ${KDIR}/../kernel/fs/exfat
+	rm -rf ${MDIR}/kernel/fs/exfat
 	depmod -aq
 
 endif
