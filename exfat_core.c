@@ -28,7 +28,7 @@
 /************************************************************************/
 /*                                                                      */
 /*  PROJECT : exFAT & FAT12/16/32 File System                           */
-/*  FILE    : exfat.c                                                   */
+/*  FILE    : exfat_core.c                                              */
 /*  PURPOSE : exFAT File Manager                                        */
 /*                                                                      */
 /*----------------------------------------------------------------------*/
@@ -5112,5 +5112,3 @@ s32 multi_sector_write(struct super_block *sb, u32 sec, struct buffer_head *bh, 
 
 	return ret;
 } /* end of multi_sector_write */
-
-/* end of exfat_core.c */
