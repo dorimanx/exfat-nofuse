@@ -42,12 +42,12 @@ Let's take [linux] as the path to your kernel source dir...
 edit [linux]/fs/Kconfig
 ```
  menu "DOS/FAT/NT Filesystems"
-  
+
   source "fs/fat/Kconfig"
  +source "fs/exfat/Kconfig"
   source "fs/ntfs/Kconfig"
 ```
-  
+
   endmenu
 
 edit [linux]/fs/Makefile
