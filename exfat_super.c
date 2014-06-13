@@ -1566,7 +1566,7 @@ static int exfat_write_end(struct file *file, struct address_space *mapping,
 	return err;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,15,0)
 static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb, struct iov_iter *iter,
 				loff_t offset)
 #else
@@ -1586,7 +1586,7 @@ static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb,
 	ssize_t ret;
 
 	if (rw == WRITE) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,15,0)
 		if (EXFAT_I(inode)->mmu_private < (offset + iov_iter_count(iter)))
 #else
 #ifdef CONFIG_AIO_OPTIMIZATION
@@ -1599,7 +1599,7 @@ static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb,
 			return 0;
 	}
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,2,00)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,15,0)
 	ret = blockdev_direct_IO(rw, iocb, inode, iter,
 					offset, exfat_get_block);
 #else
@@ -1618,7 +1618,7 @@ static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb,
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,34)
 	if ((ret < 0) && (rw & WRITE))
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,15,0)
 		exfat_write_failed(mapping, offset+iov_iter_count(iter));
 #else
 #ifdef CONFIG_AIO_OPTIMIZATION
