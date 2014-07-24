@@ -2681,7 +2681,7 @@ void exfat_set_entry_flag(DENTRY_T *p_entry, u8 flags)
 u32 fat_get_entry_clu0(DENTRY_T *p_entry)
 {
 	DOS_DENTRY_T *ep = (DOS_DENTRY_T *) p_entry;
-	return (GET32_A(ep->start_clu_hi) << 16) | GET16_A(ep->start_clu_lo);
+	return ((u32) GET16_A(ep->start_clu_hi) << 16) | GET16_A(ep->start_clu_lo);
 } /* end of fat_get_entry_clu0 */
 
 u32 exfat_get_entry_clu0(DENTRY_T *p_entry)
