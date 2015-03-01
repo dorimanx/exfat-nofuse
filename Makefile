@@ -28,7 +28,6 @@ KDIR	:= /lib/modules/$(shell uname -r)/build
 MDIR	:= /lib/modules/$(shell uname -r)
 PWD	:= $(shell pwd)
 KREL	:= $(shell cd ${KDIR} && make -s kernelrelease)
-MDIR	:= /lib/modules/${KREL}
 PWD	:= $(shell pwd)
 
 export CONFIG_EXFAT_FS := m
