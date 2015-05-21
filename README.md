@@ -42,9 +42,9 @@ edit [linux]/fs/Kconfig
   source "fs/fat/Kconfig"
  +source "fs/exfat/Kconfig"
   source "fs/ntfs/Kconfig"
-```
-
   endmenu
+```
+  
 
 edit [linux]/fs/Makefile
 ```
