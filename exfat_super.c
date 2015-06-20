@@ -1336,9 +1336,11 @@ const struct file_operations exfat_file_operations = {
 	.write       = do_sync_write,
 	.aio_read    = generic_file_aio_read,
 	.aio_write   = generic_file_aio_write,
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4,1,0)
 	.read        = new_sync_read,
 	.write       = new_sync_write,
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 	.read_iter   = generic_file_read_iter,
 	.write_iter  = generic_file_write_iter,
 #endif
@@ -1613,7 +1615,10 @@ static ssize_t exfat_direct_IO(int rw, struct kiocb *iocb,
 #endif
 			return 0;
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,1,0)
+	ret = blockdev_direct_IO(iocb, inode, iter,
+					offset, exfat_get_block);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
 	ret = blockdev_direct_IO(rw, iocb, inode, iter,
 					offset, exfat_get_block);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0)
