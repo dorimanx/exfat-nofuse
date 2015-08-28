@@ -57,13 +57,21 @@
 /*----------------------------------------------------------------------*/
 
 /* FAT cache */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
+DECLARE_MUTEX(f_sem);
+#else
 DEFINE_SEMAPHORE(f_sem);
+#endif
 BUF_CACHE_T FAT_cache_array[FAT_CACHE_SIZE];
 BUF_CACHE_T FAT_cache_lru_list;
 BUF_CACHE_T FAT_cache_hash_list[FAT_CACHE_HASH_SIZE];
 
 /* buf cache */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
+DECLARE_MUTEX(b_sem);
+#else
 DEFINE_SEMAPHORE(b_sem);
+#endif
 BUF_CACHE_T buf_cache_array[BUF_CACHE_SIZE];
 BUF_CACHE_T buf_cache_lru_list;
 BUF_CACHE_T buf_cache_hash_list[BUF_CACHE_HASH_SIZE];

@@ -55,7 +55,11 @@
 /*                                                                      */
 /*======================================================================*/
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
+DECLARE_MUTEX(z_sem);
+#else
 DEFINE_SEMAPHORE(z_sem);
+#endif
 
 s32 sm_init(struct semaphore *sm)
 {
