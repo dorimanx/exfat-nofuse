@@ -183,7 +183,7 @@ s32 ffsMountVol(struct super_block *sb)
 	if (sector_read(sb, 0, &tmp_bh, 1) != FFS_SUCCESS)
 		return FFS_MEDIAERR;
 
-		p_fs->PBR_sector = 0;
+	p_fs->PBR_sector = 0;
 
 	p_pbr = (PBR_SECTOR_T *) tmp_bh->b_data;
 
