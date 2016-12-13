@@ -1101,14 +1101,25 @@ out:
 	return err;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+static int exfat_rename(struct inode *old_dir, struct dentry *old_dentry,
+						struct inode *new_dir, struct dentry *new_dentry,
+						unsigned int flags)
+#else
 static int exfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 						struct inode *new_dir, struct dentry *new_dentry)
+#endif
 {
 	struct inode *old_inode, *new_inode;
 	struct super_block *sb = old_dir->i_sb;
 	struct timespec ts;
 	loff_t i_pos;
 	int err;
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+	if (flags)
+		return -EINVAL;
+#endif
 
 	__lock_super(sb);
 
@@ -1293,7 +1304,11 @@ static int exfat_setattr(struct dentry *dentry, struct iattr *attr)
 		attr->ia_valid &= ~(ATTR_MTIME_SET | ATTR_ATIME_SET | ATTR_TIMES_SET);
 	}
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+	error = setattr_prepare(dentry, attr);
+#else
 	error = inode_change_ok(inode, attr);
+#endif
 	attr->ia_valid = ia_valid;
 	if (error)
 		return error;
