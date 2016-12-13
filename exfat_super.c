@@ -2563,6 +2563,13 @@ static int __init exfat_init_inodecache(void)
 
 static void __exit exfat_destroy_inodecache(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
+#endif
 	kmem_cache_destroy(exfat_inode_cachep);
 }
 
