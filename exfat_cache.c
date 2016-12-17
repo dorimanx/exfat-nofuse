@@ -50,15 +50,15 @@
 static s32 __FAT_read(struct super_block *sb, u32 loc, u32 *content);
 static s32 __FAT_write(struct super_block *sb, u32 loc, u32 content);
 
-static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, u32 sec);
-static BUF_CACHE_T *FAT_cache_get(struct super_block *sb, u32 sec);
+static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, sector_t sec);
+static BUF_CACHE_T *FAT_cache_get(struct super_block *sb, sector_t sec);
 static void FAT_cache_insert_hash(struct super_block *sb, BUF_CACHE_T *bp);
 static void FAT_cache_remove_hash(BUF_CACHE_T *bp);
 
-static u8 *__buf_getblk(struct super_block *sb, u32 sec);
+static u8 *__buf_getblk(struct super_block *sb, sector_t sec);
 
-static BUF_CACHE_T *buf_cache_find(struct super_block *sb, u32 sec);
-static BUF_CACHE_T *buf_cache_get(struct super_block *sb, u32 sec);
+static BUF_CACHE_T *buf_cache_find(struct super_block *sb, sector_t sec);
+static BUF_CACHE_T *buf_cache_get(struct super_block *sb, sector_t sec);
 static void buf_cache_insert_hash(struct super_block *sb, BUF_CACHE_T *bp);
 static void buf_cache_remove_hash(BUF_CACHE_T *bp);
 
@@ -165,7 +165,8 @@ s32 FAT_write(struct super_block *sb, u32 loc, u32 content)
 static s32 __FAT_read(struct super_block *sb, u32 loc, u32 *content)
 {
 	s32 off;
-	u32 sec, _content;
+	u32 _content;
+	sector_t sec;
 	u8 *fat_sector, *fat_entry;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 	BD_INFO_T *p_bd = &(EXFAT_SB(sb)->bd_info);
@@ -276,7 +277,7 @@ static s32 __FAT_read(struct super_block *sb, u32 loc, u32 *content)
 static s32 __FAT_write(struct super_block *sb, u32 loc, u32 content)
 {
 	s32 off;
-	u32 sec;
+	sector_t sec;
 	u8 *fat_sector, *fat_entry;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 	BD_INFO_T *p_bd = &(EXFAT_SB(sb)->bd_info);
@@ -381,7 +382,7 @@ static s32 __FAT_write(struct super_block *sb, u32 loc, u32 content)
 	return 0;
 } /* end of __FAT_write */
 
-u8 *FAT_getblk(struct super_block *sb, u32 sec)
+u8 *FAT_getblk(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
@@ -416,7 +417,7 @@ u8 *FAT_getblk(struct super_block *sb, u32 sec)
 	return bp->buf_bh->b_data;
 } /* end of FAT_getblk */
 
-void FAT_modify(struct super_block *sb, u32 sec)
+void FAT_modify(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 
@@ -469,7 +470,7 @@ void FAT_sync(struct super_block *sb)
 	sm_V(&f_sem);
 } /* end of FAT_sync */
 
-static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, u32 sec)
+static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, sector_t sec)
 {
 	s32 off;
 	BUF_CACHE_T *bp, *hp;
@@ -491,7 +492,7 @@ static BUF_CACHE_T *FAT_cache_find(struct super_block *sb, u32 sec)
 	return NULL;
 } /* end of FAT_cache_find */
 
-static BUF_CACHE_T *FAT_cache_get(struct super_block *sb, u32 sec)
+static BUF_CACHE_T *FAT_cache_get(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
@@ -529,7 +530,7 @@ static void FAT_cache_remove_hash(BUF_CACHE_T *bp)
 /*  Buffer Read/Write Functions                                         */
 /*======================================================================*/
 
-u8 *buf_getblk(struct super_block *sb, u32 sec)
+u8 *buf_getblk(struct super_block *sb, sector_t sec)
 {
 	u8 *buf;
 
@@ -542,7 +543,7 @@ u8 *buf_getblk(struct super_block *sb, u32 sec)
 	return buf;
 } /* end of buf_getblk */
 
-static u8 *__buf_getblk(struct super_block *sb, u32 sec)
+static u8 *__buf_getblk(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
@@ -578,7 +579,7 @@ static u8 *__buf_getblk(struct super_block *sb, u32 sec)
 
 } /* end of __buf_getblk */
 
-void buf_modify(struct super_block *sb, u32 sec)
+void buf_modify(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 
@@ -588,12 +589,13 @@ void buf_modify(struct super_block *sb, u32 sec)
 	if (likely(bp != NULL))
 		sector_write(sb, sec, bp->buf_bh, 0);
 
-	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%u).\n", sec);
+	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%llu).\n",
+	     (unsigned long long)sec);
 
 	sm_V(&b_sem);
 } /* end of buf_modify */
 
-void buf_lock(struct super_block *sb, u32 sec)
+void buf_lock(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 
@@ -603,12 +605,13 @@ void buf_lock(struct super_block *sb, u32 sec)
 	if (likely(bp != NULL))
 		bp->flag |= LOCKBIT;
 
-	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%u).\n", sec);
+	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%llu).\n",
+	     (unsigned long long)sec);
 
 	sm_V(&b_sem);
 } /* end of buf_lock */
 
-void buf_unlock(struct super_block *sb, u32 sec)
+void buf_unlock(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 
@@ -618,12 +621,13 @@ void buf_unlock(struct super_block *sb, u32 sec)
 	if (likely(bp != NULL))
 		bp->flag &= ~(LOCKBIT);
 
-	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%u).\n", sec);
+	WARN(!bp, "[EXFAT] failed to find buffer_cache(sector:%llu).\n",
+	     (unsigned long long)sec);
 
 	sm_V(&b_sem);
 } /* end of buf_unlock */
 
-void buf_release(struct super_block *sb, u32 sec)
+void buf_release(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
@@ -691,7 +695,7 @@ void buf_sync(struct super_block *sb)
 	sm_V(&b_sem);
 } /* end of buf_sync */
 
-static BUF_CACHE_T *buf_cache_find(struct super_block *sb, u32 sec)
+static BUF_CACHE_T *buf_cache_find(struct super_block *sb, sector_t sec)
 {
 	s32 off;
 	BUF_CACHE_T *bp, *hp;
@@ -709,7 +713,7 @@ static BUF_CACHE_T *buf_cache_find(struct super_block *sb, u32 sec)
 	return NULL;
 } /* end of buf_cache_find */
 
-static BUF_CACHE_T *buf_cache_get(struct super_block *sb, u32 sec)
+static BUF_CACHE_T *buf_cache_get(struct super_block *sb, sector_t sec)
 {
 	BUF_CACHE_T *bp;
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
