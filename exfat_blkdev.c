@@ -94,7 +94,7 @@ s32 bdev_close(struct super_block *sb)
 	return FFS_SUCCESS;
 }
 
-s32 bdev_read(struct super_block *sb, u32 secno, struct buffer_head **bh, u32 num_secs, s32 read)
+s32 bdev_read(struct super_block *sb, sector_t secno, struct buffer_head **bh, u32 num_secs, s32 read)
 {
 	BD_INFO_T *p_bd = &(EXFAT_SB(sb)->bd_info);
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
@@ -126,7 +126,7 @@ s32 bdev_read(struct super_block *sb, u32 secno, struct buffer_head **bh, u32 nu
 	return FFS_MEDIAERR;
 }
 
-s32 bdev_write(struct super_block *sb, u32 secno, struct buffer_head *bh, u32 num_secs, s32 sync)
+s32 bdev_write(struct super_block *sb, sector_t secno, struct buffer_head *bh, u32 num_secs, s32 sync)
 {
 	s32 count;
 	struct buffer_head *bh2;

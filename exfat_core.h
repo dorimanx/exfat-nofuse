@@ -127,13 +127,13 @@
 #define MAX(a, b)		(((a) > (b)) ? (a) : (b))
 
 #define START_SECTOR(x) \
-	((((x) - 2) << p_fs->sectors_per_clu_bits) + p_fs->data_start_sector)
+	((((sector_t)((x) - 2)) << p_fs->sectors_per_clu_bits) + p_fs->data_start_sector)
 
 #define IS_LAST_SECTOR_IN_CLUSTER(sec) \
 		((((sec) - p_fs->data_start_sector + 1) & ((1 <<  p_fs->sectors_per_clu_bits) - 1)) == 0)
 
 #define GET_CLUSTER_FROM_SECTOR(sec)			\
-		((((sec) - p_fs->data_start_sector) >> p_fs->sectors_per_clu_bits) + 2)
+		((u32)((((sec) - p_fs->data_start_sector) >> p_fs->sectors_per_clu_bits) + 2))
 
 #define GET16(p_src) \
 	(((u16)(p_src)[0]) | (((u16)(p_src)[1]) << 8))
@@ -449,7 +449,7 @@ typedef struct __FS_INFO_T {
 	u32      vol_type;               /* volume FAT type */
 	u32      vol_id;                 /* volume serial number */
 
-	u32      num_sectors;            /* num of sectors in volume */
+	u64      num_sectors;            /* num of sectors in volume */
 	u32      num_clusters;           /* num of clusters in volume */
 	u32      cluster_size;           /* cluster size in bytes */
 	u32      cluster_size_bits;
@@ -501,7 +501,7 @@ typedef struct __FS_INFO_T {
 #define ES_ALL_ENTRIES	0
 
 typedef struct {
-	u32	sector;		/* sector number that contains file_entry */
+	sector_t	sector;	/* sector number that contains file_entry */
 	s32	offset;		/* byte offset in the sector */
 	s32	alloc_flag;	/* flag in stream entry. 01 for cluster chain, 03 for contig. clusteres. */
 	u32 num_entries;
@@ -615,9 +615,9 @@ void   init_name_entry(NAME_DENTRY_T *ep, u16 *uniname);
 void   fat_delete_dir_entry(struct super_block *sb, CHAIN_T *p_dir, s32 entry, s32 order, s32 num_entries);
 void   exfat_delete_dir_entry(struct super_block *sb, CHAIN_T *p_dir, s32 entry, s32 order, s32 num_entries);
 
-s32   find_location(struct super_block *sb, CHAIN_T *p_dir, s32 entry, u32 *sector, s32 *offset);
-DENTRY_T *get_entry_with_sector(struct super_block *sb, u32 sector, s32 offset);
-DENTRY_T *get_entry_in_dir(struct super_block *sb, CHAIN_T *p_dir, s32 entry, u32 *sector);
+s32   find_location(struct super_block *sb, CHAIN_T *p_dir, s32 entry, sector_t *sector, s32 *offset);
+DENTRY_T *get_entry_with_sector(struct super_block *sb, sector_t sector, s32 offset);
+DENTRY_T *get_entry_in_dir(struct super_block *sb, CHAIN_T *p_dir, s32 entry, sector_t *sector);
 ENTRY_SET_CACHE_T *get_entry_set_in_dir(struct super_block *sb, CHAIN_T *p_dir, s32 entry, u32 type, DENTRY_T **file_ep);
 void release_entry_set(ENTRY_SET_CACHE_T *es);
 s32 write_whole_entry_set(struct super_block *sb, ENTRY_SET_CACHE_T *es);
@@ -663,9 +663,9 @@ s32  rename_file(struct inode *inode, CHAIN_T *p_dir, s32 old_entry, UNI_NAME_T 
 s32  move_file(struct inode *inode, CHAIN_T *p_olddir, s32 oldentry, CHAIN_T *p_newdir, UNI_NAME_T *p_uniname, FILE_ID_T *fid);
 
 /* sector read/write functions */
-s32   sector_read(struct super_block *sb, u32 sec, struct buffer_head **bh, s32 read);
-s32   sector_write(struct super_block *sb, u32 sec, struct buffer_head *bh, s32 sync);
-s32   multi_sector_read(struct super_block *sb, u32 sec, struct buffer_head **bh, s32 num_secs, s32 read);
-s32   multi_sector_write(struct super_block *sb, u32 sec, struct buffer_head *bh, s32 num_secs, s32 sync);
+s32   sector_read(struct super_block *sb, sector_t sec, struct buffer_head **bh, s32 read);
+s32   sector_write(struct super_block *sb, sector_t sec, struct buffer_head *bh, s32 sync);
+s32   multi_sector_read(struct super_block *sb, sector_t sec, struct buffer_head **bh, s32 num_secs, s32 read);
+s32   multi_sector_write(struct super_block *sb, sector_t sec, struct buffer_head *bh, s32 num_secs, s32 sync);
 
 #endif /* _EXFAT_H */
