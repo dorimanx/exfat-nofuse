@@ -1419,7 +1419,9 @@ static void *exfat_follow_link(struct dentry *dentry, struct nameidata *nd)
 #endif
 
 const struct inode_operations exfat_symlink_inode_operations = {
-	.readlink    = generic_readlink,
+	#if LINUX_VERSION_CODE < KERNEL_VERSION(4,10,0)
+		.readlink    = generic_readlink,
+	#endif
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0)
 		.follow_link = exfat_follow_link,
 	#endif
