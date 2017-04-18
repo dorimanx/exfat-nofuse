@@ -57,6 +57,7 @@
 #include "exfat_core.h"
 
 #include <linux/blkdev.h>
+#include <linux/slab.h>
 
 static void __set_sb_dirty(struct super_block *sb)
 {
