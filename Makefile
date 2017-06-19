@@ -27,7 +27,6 @@ EXTRA_FLAGS += -I$(PWD)
 KDIR	?= /lib/modules/$(shell uname -r)/build
 MDIR	?= /lib/modules/$(shell uname -r)
 PWD	:= $(shell pwd)
-KREL	:= $(shell cd ${KDIR} && make -s kernelrelease)
 PWD	:= $(shell pwd)
 
 export CONFIG_EXFAT_FS := m
