@@ -63,6 +63,9 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #include <linux/aio.h>
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
+#include <linux/iversion.h>
+#endif
 #include <linux/parser.h>
 #include <linux/uio.h>
 #include <linux/writeback.h>
@@ -97,6 +100,17 @@ extern struct timezone sys_tz;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0)
 #define current_time(x)	(CURRENT_TIME_SEC)
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
+#define USE_NEW_IVERSION_API
+#define INC_IVERSION(x) (inode_inc_iversion(x))
+#define GET_IVERSION(x) (inode_peek_iversion_raw(x))
+#define SET_IVERSION(x,y) (inode_set_iversion(x, y))
+#else
+#define INC_IVERSION(x) (x->i_version++)
+#define GET_IVERSION(x) (x->i_version)
+#define SET_IVERSION(x,y) (x->i_version = y)
 #endif
 
 #define CHECK_ERR(x)	BUG_ON(x)
@@ -747,7 +761,7 @@ static int exfat_create(struct inode *dir, struct dentry *dentry, int mode,
 			err = -EIO;
 		goto out;
 	}
-	dir->i_version++;
+	INC_IVERSION(dir);
 	dir->i_ctime = dir->i_mtime = dir->i_atime = current_time(dir);
 	if (IS_DIRSYNC(dir))
 		(void) exfat_sync_inode(dir);
@@ -761,11 +775,11 @@ static int exfat_create(struct inode *dir, struct dentry *dentry, int mode,
 		err = PTR_ERR(inode);
 		goto out;
 	}
-	inode->i_version++;
+	INC_IVERSION(inode);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 	/* timestamp is already written, so mark_inode_dirty() is unnecessary. */
 
-	dentry->d_time = dentry->d_parent->d_inode->i_version;
+	dentry->d_time = GET_IVERSION(dentry->d_parent->d_inode);
 	d_instantiate(dentry, inode);
 
 out:
@@ -854,18 +868,18 @@ static struct dentry *exfat_lookup(struct inode *dir, struct dentry *dentry,
 	}
 out:
 	__unlock_super(sb);
-	dentry->d_time = dentry->d_parent->d_inode->i_version;
+	dentry->d_time = GET_IVERSION(dentry->d_parent->d_inode);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,38)
 	dentry->d_op = sb->s_root->d_op;
 	dentry = d_splice_alias(inode, dentry);
 	if (dentry) {
 		dentry->d_op = sb->s_root->d_op;
-		dentry->d_time = dentry->d_parent->d_inode->i_version;
+		dentry->d_time = GET_IVERSION(dentry->d_parent->d_inode);
 	}
 #else
 	dentry = d_splice_alias(inode, dentry);
 	if (dentry)
-		dentry->d_time = dentry->d_parent->d_inode->i_version;
+		dentry->d_time = GET_IVERSION(dentry->d_parent->d_inode);
 #endif
 	DPRINTK("exfat_lookup exited 2\n");
 	return dentry;
@@ -896,7 +910,7 @@ static int exfat_unlink(struct inode *dir, struct dentry *dentry)
 			err = -EIO;
 		goto out;
 	}
-	dir->i_version++;
+	INC_IVERSION(dir);
 	dir->i_mtime = dir->i_atime = current_time(dir);
 	if (IS_DIRSYNC(dir))
 		(void) exfat_sync_inode(dir);
@@ -953,7 +967,7 @@ static int exfat_symlink(struct inode *dir, struct dentry *dentry, const char *t
 		goto out;
 	}
 
-	dir->i_version++;
+	INC_IVERSION(dir);
 	dir->i_ctime = dir->i_mtime = dir->i_atime = current_time(dir);
 	if (IS_DIRSYNC(dir))
 		(void) exfat_sync_inode(dir);
@@ -967,7 +981,7 @@ static int exfat_symlink(struct inode *dir, struct dentry *dentry, const char *t
 		err = PTR_ERR(inode);
 		goto out;
 	}
-	inode->i_version++;
+	INC_IVERSION(inode);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
@@ -978,7 +992,7 @@ static int exfat_symlink(struct inode *dir, struct dentry *dentry, const char *t
 	}
 	memcpy(EXFAT_I(inode)->target, target, len+1);
 
-	dentry->d_time = dentry->d_parent->d_inode->i_version;
+	dentry->d_time = GET_IVERSION(dentry->d_parent->d_inode);
 	d_instantiate(dentry, inode);
 
 out:
@@ -1017,7 +1031,7 @@ static int exfat_mkdir(struct inode *dir, struct dentry *dentry, int mode)
 			err = -EIO;
 		goto out;
 	}
-	dir->i_version++;
+	INC_IVERSION(dir);
 	dir->i_ctime = dir->i_mtime = dir->i_atime = current_time(dir);
 	if (IS_DIRSYNC(dir))
 		(void) exfat_sync_inode(dir);
@@ -1032,11 +1046,11 @@ static int exfat_mkdir(struct inode *dir, struct dentry *dentry, int mode)
 		err = PTR_ERR(inode);
 		goto out;
 	}
-	inode->i_version++;
+	INC_IVERSION(inode);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
-	dentry->d_time = dentry->d_parent->d_inode->i_version;
+	dentry->d_time = GET_IVERSION(dentry->d_parent->d_inode);
 	d_instantiate(dentry, inode);
 
 out:
@@ -1071,7 +1085,7 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
 			err = -EIO;
 		goto out;
 	}
-	dir->i_version++;
+	INC_IVERSION(dir);
 	dir->i_mtime = dir->i_atime = current_time(dir);
 	if (IS_DIRSYNC(dir))
 		(void) exfat_sync_inode(dir);
@@ -1134,7 +1148,7 @@ static int exfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 			err = -EIO;
 		goto out;
 	}
-	new_dir->i_version++;
+	INC_IVERSION(new_dir);
 	new_dir->i_ctime = new_dir->i_mtime = new_dir->i_atime = current_time(new_dir);
 	if (IS_DIRSYNC(new_dir))
 		(void) exfat_sync_inode(new_dir);
@@ -1156,8 +1170,7 @@ static int exfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 		if (!new_inode)
 			inc_nlink(new_dir);
 	}
-
-	old_dir->i_version++;
+	INC_IVERSION(old_dir);
 	old_dir->i_ctime = old_dir->i_mtime = current_time(old_dir);
 	if (IS_DIRSYNC(old_dir))
 		(void) exfat_sync_inode(old_dir);
@@ -1872,7 +1885,7 @@ static int exfat_fill_inode(struct inode *inode, FILE_ID_T *fid)
 	EXFAT_I(inode)->target = NULL;
 	inode->i_uid = sbi->options.fs_uid;
 	inode->i_gid = sbi->options.fs_gid;
-	inode->i_version++;
+	INC_IVERSION(inode);
 	inode->i_generation = get_seconds();
 
 	if (info.Attr & ATTR_SUBDIR) { /* directory */
@@ -1932,7 +1945,7 @@ static struct inode *exfat_build_inode(struct super_block *sb,
 		goto out;
 	}
 	inode->i_ino = iunique(sb, EXFAT_ROOT_INO);
-	inode->i_version = 1;
+	SET_IVERSION(inode, 1);
 	err = exfat_fill_inode(inode, fid);
 	if (err) {
 		iput(inode);
@@ -2422,7 +2435,7 @@ static int exfat_read_root(struct inode *inode)
 
 	inode->i_uid = sbi->options.fs_uid;
 	inode->i_gid = sbi->options.fs_gid;
-	inode->i_version++;
+	INC_IVERSION(inode);
 	inode->i_generation = 0;
 	inode->i_mode = exfat_make_mode(sbi, ATTR_SUBDIR, S_IRWXUGO);
 	inode->i_op = &exfat_dir_inode_operations;
@@ -2530,7 +2543,8 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	if (!root_inode)
 		goto out_fail2;
 	root_inode->i_ino = EXFAT_ROOT_INO;
-	root_inode->i_version = 1;
+	SET_IVERSION(root_inode, 1);
+
 	error = exfat_read_root(root_inode);
 	if (error < 0)
 		goto out_fail2;
